@@ -1,0 +1,109 @@
+/* The daily post. It's always dark, whatever the site's theme, like the paintings it shows. */
+.post {
+  position: relative;
+  container-type: inline-size;
+  /* 4:5 like the paintings, but short enough to fit on screen under the site's top bar. */
+  height: min(125cqw, max(420px, 100vh - 200px));
+  margin: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #0b0b0b;
+  color: #f3ede2;
+  isolation: isolate;
+}
+
+.post img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.75) contrast(1.05) brightness(0.8);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.post img.loaded {
+  opacity: 1;
+}
+
+/* A vignette, then a fade to near black behind the quote, so it reads on any painting. */
+.post::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 90% at 50% 35%, transparent 40%, rgb(0 0 0 / 0.55) 100%),
+    linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.1) 0%,
+      transparent 30%,
+      rgb(0 0 0 / 0.55) 58%,
+      rgb(0 0 0 / 0.9) 100%
+    );
+}
+
+/* Film grain. */
+.post::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.quote {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  margin: 0;
+  padding: 0 8cqi 9cqi;
+  text-align: center;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.6);
+}
+
+.quote p {
+  margin: 0;
+  font-family: 'Auctor Cormorant', Georgia, serif;
+  font-size: clamp(18px, 5cqi, 30px);
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.quote cite {
+  display: block;
+  margin-top: 18px;
+  /* Balances the letter spacing after the last letter, so the line stays centered. */
+  padding-left: 0.28em;
+  font-family: 'Auctor Cinzel', Georgia, serif;
+  font-size: 12px;
+  font-style: normal;
+  letter-spacing: 0.28em;
+  opacity: 0.75;
+}
+
+.quote cite::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin: 0 auto 14px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.credit {
+  position: absolute;
+  inset: auto 14px 10px;
+  z-index: 3;
+  overflow: hidden;
+  font-size: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.4;
+}

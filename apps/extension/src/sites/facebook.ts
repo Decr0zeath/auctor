@@ -6,7 +6,6 @@ const HOME = '^/(home\\.php)?(\\?(?!.*\\bfilter=).*)?$';
 // The feed sits after a visually hidden "Feed posts" heading and an empty aria-hidden spacer.
 // Facebook randomizes class names, so these rely on structure, ARIA, and attributes instead.
 const FEED_SECTION = '[role="main"] div:has(> h3 + [aria-hidden="true"] + div)';
-
 // A tab in the top bar, found by where it links so it works in any language. Checked against the
 // live site on 2026-10-03: the Menu popover links to the same pages, but it's outside the top
 // bar's navigation, so it stays.
@@ -44,15 +43,8 @@ export default defineSite({
         placement: 'before',
         color: 'var(--primary-text)',
         on: HOME,
-        search: { action: '/search/top/', param: 'q', placeholder: 'Search Facebook' },
-        shortcuts: [
-          { label: 'Feeds', href: '/?filter=all&sk=h_chr' },
-          { label: 'Groups', href: '/groups/feed/' },
-          { label: 'Marketplace', href: '/marketplace/' },
-          { label: 'Notifications', href: '/notifications/' },
-          { label: 'Messenger', href: '/messages/' },
-          { label: 'Events', href: '/events/' },
-        ],
+        // The feed's one post, and nothing else to click under the top bar but the way back.
+        post: true,
         showAnyway: 'Show the feed anyway',
       },
     },
@@ -72,6 +64,18 @@ export default defineSite({
       // The stories viewer, opened from the row or a profile picture. Making your own story
       // (`/stories/create/`) still opens normally.
       gate: '^/stories/(?!create\\b)',
+    },
+    'facebook.composer': {
+      hide: [
+        {
+          on: HOME,
+          // The "What's on your mind?" box: a heading, a link to your profile, then the button
+          // that opens the composer. Checked against the live site on 2026-10-03.
+          selectors: [
+            '[role="main"] [role="region"]:has(> div > h3 + a[role="link"] + [role="button"])',
+          ],
+        },
+      ],
     },
     'facebook.reels': {
       hide: [

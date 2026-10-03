@@ -21,7 +21,8 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 | Logo | Hervé Bazin's **authority point** ([concept](#logo-the-authority-point)) |
 | The pause | A 15-second wait, then a 5-minute pass. Both are adjustable, and loosening either waits 24 hours. |
 | YouTube home feed | **Left on by default**, because it's where I pick background listening while working (lectures, talks, music). Removing it stays available as a setting. |
-| Facebook navigation | **Only Home by default.** The top bar's search bar and its Reels, Marketplace, Groups, and Gaming tabs are removed. So are the home page's left sidebar and right panel (ads, Contacts, Group chats). Each is its own setting, and the feed panel keeps a search box. |
+| Facebook navigation | **Only Home by default.** The top bar's search bar and its Reels, Marketplace, Groups, and Gaming tabs are removed. So are the home page's post composer, left sidebar, and right panel (ads, Contacts, Group chats). Each is its own setting. With the defaults, nothing is left to click under the top bar but the daily post's way back to the feed; to search, turn the search bar back on. |
+| The daily post | **The Facebook feed becomes one post a day:** a public-domain painting (knights, Rembrandt, Caravaggio) with a quote from the Stoics or the Bible (King James Version) about time, discipline, and putting things off. Under it, the only thing to click is a way back to the feed in guilt-tripping words ("Succumb to temptation", "Abandon the vigil"), which still goes through the pause. It all stays the same all day, because a post that changed on every refresh would be a feed of its own. YouTube's home feed gets it later. |
 
 ## Research
 
@@ -54,18 +55,19 @@ A **surface** is one brain-rot entry point in a site or app, with a stable ID sh
 | `youtube.home-feed` | Off | When set to Remove: hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
 | `youtube.shorts` | Remove shelves, friction to enter | Hide Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts tab. | Detect the Shorts player and show friction |
 | `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
-| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays, and the panel links to it. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. In its place, the [daily post](docs/surfaces.md#the-daily-post). The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.composer` | Remove | Hide the "What's on your mind?" box on `/`. Posting still works from your profile. | Later |
 | `facebook.stories` | Remove the row, friction to enter | Hide the stories row (My Day) on `/`. Friction on the stories viewer (`/stories/*`), which opens from the row or a profile picture. Making your own story (`/stories/create/`) stays open. | Detect the stories viewer and show friction |
 | `facebook.reels` | Remove the links, friction to enter | Hide Reels in the top bar and the left sidebar. Friction on `/reel/*`, `/reels/*`, and the old Video tab (`/watch`), which Facebook now redirects to Reels. | Detect the Reels viewer |
 | `facebook.marketplace` | Remove | Hide Marketplace in the top bar and the left sidebar | Later |
 | `facebook.groups` | Remove | Hide Groups in the top bar and the left sidebar; shortcuts to single groups stay | Later |
 | `facebook.gaming` | Remove | Hide Gaming in the top bar, and Gaming Video and Play games in the left sidebar | Later |
-| `facebook.search` | Remove | Hide the search bar in the top bar; the feed panel has its own | Later |
+| `facebook.search` | Remove | Hide the search bar in the top bar | Later |
 | `facebook.sidebar` | Remove | Empty the left sidebar on `/`, keeping its width so the page stays centered | Later |
 | `facebook.sponsored` | Remove | Hide the ads in the right panel on `/` | Later |
 | `facebook.contacts` | Remove | Hide the Contacts and Group chats lists in the right panel on `/` | Later |
 
-- **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications. Removing a top bar tab or sidebar link only hides the link; the pages still open from search, links, and the feed panel's shortcuts. Removing Contacts hides the list, not Messenger.
+- **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications. Removing a top bar tab or sidebar link only hides the link; the pages still open from search, links, and notifications. Removing Contacts hides the list, not Messenger.
 - **Facebook is the hard target on both platforms.** Its web HTML uses randomized class names, so we rely on URLs and ARIA roles. Its Android app exposes few stable view IDs, so we may have to match on-screen labels, which change with the phone's language.
 - **Android can't edit another app's screen,** so there "remove" means covering it with our own overlay of useful shortcuts.
 

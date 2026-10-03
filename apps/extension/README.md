@@ -44,6 +44,17 @@ Prefer rules in this order, because the later ones break more often when a site 
 2. **ARIA roles and stable IDs** in selectors.
 3. **Class and element names**: last resort, and expect to maintain them.
 
+## The daily post
+
+The post that replaces a removed feed ([how it works](../../docs/surfaces.md#the-daily-post)) is a site rule away: `post: true` on a surface's `replacement`. Its quotes, its paintings, and the wording of its way back to the feed (`GIVE_IN`) are listed in `src/catalog/posts.ts`; the files ship in `public/`:
+
+| Folder | What's in it | License |
+|---|---|---|
+| `public/posts/` | One painting per entry in `PAINTINGS`, named `<id>.webp`, cropped to 4:5 at 960×1200 | Public domain; each entry links to its Wikimedia Commons page |
+| `public/fonts/` | Cormorant Garamond (the quote) and Cinzel (who said it), Latin only | SIL Open Font License, with each font's license next to it |
+
+To add a painting, crop it to 960×1200, darken it to sit with the others if needed, save it as WebP (quality around 70), and add it to `PAINTINGS`. To add a quote, copy it word for word from a public-domain translation and name the translation in `source`. A unit test checks that every painting has its file.
+
 ## Permissions
 
-Only `storage`. The content script runs only on the sites in `src/sites/`, and nothing leaves the browser.
+Only `storage`. The content script runs only on the sites in `src/sites/`, and nothing leaves the browser. The daily post's paintings and fonts are web-accessible resources, limited to the sites that show the post, so those pages can load them from the extension.

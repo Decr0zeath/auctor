@@ -74,6 +74,15 @@ export const SURFACES = {
     modes: ['remove', 'friction', 'off'],
     defaultMode: 'remove',
   },
+  'facebook.composer': {
+    site: 'facebook',
+    label: 'Post composer',
+    name: 'the Facebook post composer',
+    description:
+      'The "What\'s on your mind?" box on the home page. You can still post from your profile.',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
   'facebook.reels': {
     site: 'facebook',
     label: 'Reels',
@@ -115,7 +124,7 @@ export const SURFACES = {
     site: 'facebook',
     label: 'Search bar',
     name: 'Facebook search',
-    description: 'The search bar in the top bar. The feed panel on the home page has its own.',
+    description: 'The search bar in the top bar',
     modes: ['remove', 'off'],
     defaultMode: 'remove',
   },
