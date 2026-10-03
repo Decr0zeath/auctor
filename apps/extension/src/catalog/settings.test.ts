@@ -17,6 +17,7 @@ import type { Change, State } from './settings';
 
 const NOW = 1_700_000_000_000;
 const shortsOff: Change = { setting: 'mode', surface: 'youtube.shorts', value: 'off' };
+const commentsOff: Change = { setting: 'mode', surface: 'youtube.comments', value: 'off' };
 
 describe('modeOf', () => {
   it('uses the catalogue default when nothing is set', () => {
@@ -104,6 +105,13 @@ describe('requestChange', () => {
     expect(state.pending).toEqual([]);
   });
 
+  it('turns an optional limit back off at once, since off is its default', () => {
+    const on = requestChange(INITIAL_STATE, { ...commentsOff, value: 'remove' }, NOW);
+    const off = requestChange(on, commentsOff, NOW + 1000);
+    expect(modeOf(off.settings, 'youtube.comments')).toBe('off');
+    expect(off.pending).toEqual([]);
+  });
+
   it('keeps surfaces from other platforms without delaying them', () => {
     const state = requestChange(
       INITIAL_STATE,
@@ -126,6 +134,21 @@ describe('pending changes', () => {
     let state = requestChange(INITIAL_STATE, shortsOff, NOW);
     state = requestChange(state, { setting: 'passMinutes', value: 30 }, NOW - 5000);
     expect(nextDueAt(state)).toBe(NOW - 5000 + WEAKEN_DELAY_MS);
+  });
+
+  it('apply at once when they no longer need to wait', () => {
+    // Turning an optional limit off was requested while it still waited 24 hours.
+    const later = NOW + WEAKEN_DELAY_MS;
+    const state: State = {
+      settings: { ...DEFAULT_SETTINGS, surfaces: { 'youtube.comments': 'remove' } },
+      pending: [
+        { change: commentsOff, effectiveAt: later },
+        { change: shortsOff, effectiveAt: later },
+      ],
+    };
+    const resolved = resolveDue(state, NOW);
+    expect(modeOf(resolved.settings, 'youtube.comments')).toBe('off');
+    expect(resolved.pending).toEqual([{ change: shortsOff, effectiveAt: later }]);
   });
 });
 

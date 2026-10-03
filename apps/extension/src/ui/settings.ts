@@ -93,7 +93,7 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
       h(
         'p',
         { class: 'rule' },
-        `Loosening protection waits ${DELAY_HOURS} hours. Tightening is instant.`,
+        `Loosening protection waits ${DELAY_HOURS} hours. Tightening is instant, and so is turning off a setting that's off by default.`,
       ),
     );
     if (focused) root.querySelector<HTMLElement>(`[data-focus="${focused}"]`)?.focus();

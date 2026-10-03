@@ -42,7 +42,7 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | `facebook.sponsored` | `remove` | `remove`, `off` | The ads in the home page's right panel |
 | `facebook.contacts` | `remove` | `remove`, `off` | The Contacts and Group chats lists in the home page's right panel. Chats still open from Messenger. |
 
-YouTube's search shelves, hover previews, thumbnails, counts, comments, notifications, and menu are optional limits, off by default, for people who want YouTube with fewer pulls in it.
+YouTube's search shelves, hover previews, thumbnails, counts, comments, notifications, and menu are optional limits, off by default, for people who want YouTube with fewer pulls in it. Turning one back off applies at once.
 
 ## The post
 
@@ -73,6 +73,8 @@ A change that **weakens** protection takes effect **24 hours** after it's reques
 | A surface's mode | A weaker mode (`remove` → `friction` → `off`) |
 | `waitSeconds` | A shorter wait |
 | `passMinutes` | A longer pass |
+
+Surfaces that are off by default, such as YouTube's home feed and its optional limits, never wait: turning one off only goes back to its default.
 
 Requesting the same pending change again keeps its original schedule. Requesting a different weakening restarts the 24 hours. Importing a settings file follows the same rules.
 

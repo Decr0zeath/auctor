@@ -53,9 +53,11 @@ export const changeKey = (change: Change): string =>
 export function weakens(settings: Settings, change: Change): boolean {
   switch (change.setting) {
     case 'mode':
-      // Surfaces this platform doesn't know have no effect here, so they never wait.
+      // Surfaces this platform doesn't know have no effect here, so they never wait. Nor do
+      // optional limits, which are off by default: turning one off only goes back to the default.
       return (
         isSurfaceId(change.surface) &&
+        SURFACES[change.surface].defaultMode !== 'off' &&
         strength(change.value) < strength(modeOf(settings, change.surface))
       );
     case 'waitSeconds':
@@ -118,13 +120,18 @@ export function cancelPending(state: State, key: string): State {
   return { ...state, pending: state.pending.filter((p) => changeKey(p.change) !== key) };
 }
 
-/** Applies the pending changes whose time has come. */
+/**
+ * Applies the pending changes whose time has come, and any that no longer need to wait, such as
+ * one requested before the rules stopped delaying it.
+ */
 export function resolveDue(state: State, now: number): State {
-  const due = state.pending.filter((p) => p.effectiveAt <= now);
+  const due = state.pending.filter(
+    (p) => p.effectiveAt <= now || !weakens(state.settings, p.change),
+  );
   if (due.length === 0) return state;
   return {
     settings: due.reduce((settings, p) => applyChange(settings, p.change), state.settings),
-    pending: state.pending.filter((p) => p.effectiveAt > now),
+    pending: state.pending.filter((p) => !due.includes(p)),
   };
 }
 
