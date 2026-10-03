@@ -46,6 +46,23 @@ export default defineSite({
         showAnyway: 'Show the feed anyway',
       },
     },
+    'facebook.stories': {
+      hide: [
+        {
+          on: HOME,
+          selectors: [
+            // The stories row is the only region in the column that links to stories. Checked
+            // against the live site on 2026-10-03.
+            '[role="main"] [role="region"]:has(a[href*="/stories/"])',
+            // Fallback: the row's label, which only matches when Facebook is in English.
+            '[role="main"] [role="region"][aria-label="Stories"]',
+          ],
+        },
+      ],
+      // The stories viewer, opened from the row or a profile picture. Making your own story
+      // (`/stories/create/`) still opens normally.
+      gate: '^/stories/(?!create\\b)',
+    },
     'facebook.reels': {
       // Reels, and the old Video tab (`/watch`), which now redirects to Reels. A link to a
       // specific video (`/watch/?v=…`) still opens normally.

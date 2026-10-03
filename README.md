@@ -54,6 +54,7 @@ A **surface** is one brain-rot entry point in a site or app, with a stable ID sh
 | `youtube.shorts` | Remove shelves, friction to enter | Hide Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts tab. | Detect the Shorts player and show friction |
 | `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
 | `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays, and the panel links to it. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.stories` | Remove the row, friction to enter | Hide the stories row (My Day) on `/`. Friction on the stories viewer (`/stories/*`), which opens from the row or a profile picture. Making your own story (`/stories/create/`) stays open. | Detect the stories viewer and show friction |
 | `facebook.reels` | Friction | `/reel/*`, `/reels/*`, and the old Video tab (`/watch`), which Facebook now redirects to Reels | Detect the Reels viewer |
 
 - **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications.
