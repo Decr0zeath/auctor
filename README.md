@@ -1,0 +1,182 @@
+# Auctor
+
+*Be the author of your attention.*
+
+> **Status: design phase.** No code yet. This README records decisions as they're made.
+
+Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while keeping the useful parts of the same sites and apps: search, subscriptions, messages, groups, specific videos.
+
+## Decisions
+
+| | |
+|---|---|
+| Name | **Auctor**, the Latin root of both "author" and "authority" |
+| What we build | A **browser extension** (desktop) and an **Android app** that works inside native apps, since mobile-web workarounds aren't enough. No iOS or Mac. |
+| Build order | Extension first, kept small so it doesn't delay Android, where most of the scrolling happens |
+| v1 targets | YouTube and Facebook |
+| Audience | Me first, then published and shared |
+| Approach | **Remove** feeds you land on, add **friction** to feeds you choose to enter, offer optional **limits** ([research](#research)) |
+| License | GPL-3.0 ([why](#license)) |
+| Repo | One monorepo for both apps: `github.com/Decr0zeath/auctor`, private for now |
+| Logo | Hervé Bazin's **authority point** ([concept](#logo-the-authority-point)) |
+
+## Research
+
+| Study | Finding | Implication |
+|---|---|---|
+| [Grüning et al., PNAS 2023](https://www.pnas.org/doi/abs/10.1073/pnas.2213114120) (~280 users, plus ~500 in an experiment) | one sec (a short wait plus an option to back out when opening an app): users backed out of 36% of opens and tried to open the apps 37% less often. **The back-out option mattered most.** *One author builds one sec.* | Friction at the entry point works, and the "still want to?" choice matters more than the delay |
+| [Haliburton et al., CHI 2024](https://dl.acm.org/doi/10.1145/3613904.3642370) (1,039 users, ~13 weeks) | The effect lasted, but users who paused the tool **slipped back into overuse quickly** | Make turning it off slower than turning it on |
+| [Allcott, Gentzkow & Song, AER 2022](https://www.aeaweb.org/articles?id=10.1257%2Faer.20210867) (~2,000 Android users, 12 weeks) | Self-set app limits, with **changes applied the next day**, cut screen time by 22 min/day (16%). An estimated 31% of social media use comes from self-control problems. | Limits work when set in advance and can't be undone in the moment |
+| [Kovacs et al., CSCW 2021](https://arxiv.org/abs/2101.11743) (8,000+ HabitLab users) | Users **drifted to easier settings** while expecting to toughen up later | Delay changes that weaken protection |
+| [Ruiz et al., MuC 2024](https://arxiv.org/abs/2407.18803) (30 users) | Having to react to every post improved recall, but **most found it frustrating** | Put friction at a feed's entry, not on every item |
+| [Purohit et al., CHI 2023](https://dl.acm.org/doi/10.1145/3544548.3581187) | Removing Facebook's News Feed cut time on site by **64%**; limiting it to self-chosen sources cut it by **39%**. Some users feared missing out. | Removal is the strongest single intervention; a self-chosen feed eases the fear of missing out |
+| [Lyngs et al., CHI 2020](https://arxiv.org/abs/2001.04180) (58 students) | Goal reminders ("why are you visiting?") and removing the News Feed both helped. Reminders were **often annoying**; removal left some fearing missing out. | Prompt at entry points, not on home pages you pass through to reach search |
+| [Kovacs et al., CHI 2019](https://hci.stanford.edu/publications/2019/conservation/conservation-chi2019.pdf) (5,230 HabitLab users) | Time saved on targeted sites **mostly didn't shift** to other sites | Blocking YouTube and Facebook is a real saving |
+
+### Design principles
+
+1. **Remove** feeds you land on without choosing (home feeds, Shorts shelves, recommendation sidebars). Add **friction** to feeds you choose to enter (the Shorts player, Reels, Watch, "show it anyway"). Offer optional daily **limits** set in advance. Never add friction to every scroll or post.
+2. **The prompt offers a way out:** "Why are you opening this?" with **Go back** as the main action.
+3. **Weakening protection is delayed.** Loosening a limit, pausing, or uninstalling takes effect tomorrow or after a cooldown; tightening is immediate. Never offer "easier" in the moment.
+4. **Breaks are visible and short.**
+5. **Ease the fear of missing out:** replace a removed feed with one you chose, such as YouTube Subscriptions.
+6. **Same behavior everywhere:** a surface gets the same treatment in the browser and on the phone.
+
+## v1 surfaces
+
+A **surface** is one brain-rot entry point in a site or app, with a stable ID shared by both apps.
+
+| Surface ID | Default | Extension | Android |
+|---|---|---|---|
+| `youtube.home-feed` | Remove | Hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
+| `youtube.shorts` | Remove shelves, friction to enter | Hide Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts tab. | Detect the Shorts player and show friction |
+| `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
+| `facebook.feed` | Remove | Hide the News Feed on `/` and keep navigation. Link to the Favorites/Friends feed if Facebook still offers it. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.reels` | Friction | `/reel/*`, `/reels/*` | Detect the Reels viewer |
+| `facebook.watch` | Friction | `/watch` | Detect the Video tab |
+
+- **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications.
+- **Facebook is the hard target on both platforms.** Its web HTML uses randomized class names, so we rely on URLs and ARIA roles. Its Android app exposes few stable view IDs, so we may have to match on-screen labels, which change with the phone's language.
+- **Android can't edit another app's screen,** so there "remove" means covering it with our own overlay of useful shortcuts.
+
+## Repo structure
+
+A monorepo using the common `apps/` layout (as in Bitwarden's clients repo):
+
+```
+├── .github/
+│   ├── workflows/              ← one CI workflow per app, triggered by changes in its folder
+│   ├── ISSUE_TEMPLATE/         ← bug, broken site, feature request
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── dependabot.yml          ← npm and Gradle updates
+├── apps/
+│   ├── extension/              ← TypeScript, Manifest V3 (Chrome, Edge, Brave, Firefox)
+│   └── android/                ← Kotlin + Gradle
+├── docs/
+│   ├── surfaces.md             ← surface catalogue: the contract both apps follow
+│   ├── research.md             ← the studies in more detail
+│   └── adr/                    ← Architecture Decision Records
+├── .editorconfig, .gitattributes, .gitignore
+├── CODE_OF_CONDUCT.md          ← Contributor Covenant
+├── CONTRIBUTING.md
+├── LICENSE
+├── PRIVACY.md                  ← required by the Chrome Web Store and Google Play
+├── README.md
+└── SECURITY.md                 ← private vulnerability reporting
+```
+
+| Area | Standard |
+|---|---|
+| Commits | [Conventional Commits](https://www.conventionalcommits.org/) scoped by app: `feat(extension): …`, `fix(android): …` |
+| Versioning | [Semantic Versioning](https://semver.org/), per app |
+| Releases | [release-please](https://github.com/googleapis/release-please) in monorepo mode: one release PR and changelog per app, tagged `extension-v1.2.0` / `android-v1.2.0` |
+| Branching | Protected `main`; changes go through pull requests, and CI must pass |
+| Decisions | The Decisions table moves into `docs/adr/` once code starts |
+| Extension tooling | TypeScript (strict), [WXT](https://wxt.dev/) (cross-browser Manifest V3 on Vite), pnpm, ESLint + Prettier, Vitest, Playwright end-to-end tests with the extension loaded |
+| Android tooling | Kotlin, Gradle Kotlin DSL with a version catalog (`gradle/libs.versions.toml`), Jetpack Compose for settings, ktlint or detekt, JUnit |
+
+The two apps **share** surface IDs, friction behavior, prompt wording, and the settings format, all defined in `docs/surfaces.md`. They **don't share** code or detection rules (URLs and CSS selectors versus Android view IDs); each app keeps its rules as data files. Settings move between devices by JSON export and import, which is simpler than a sync server and stays offline.
+
+### Identifiers
+
+One lowercase name, `auctor`, everywhere.
+
+| | |
+|---|---|
+| Repo description | *Be the author of your attention. Removes the feeds you land on, adds friction to the ones you enter. Browser extension + Android app. GPL-3.0.* |
+| Repo topics | `digital-wellbeing`, `doomscrolling`, `browser-extension`, `manifest-v3`, `android`, `kotlin`, `youtube-shorts`, `facebook`, `screen-time` |
+| Android app ID | `io.github.decr0zeath.auctor`, **permanent once published on Play** |
+| Store name | `Auctor — Remove Feeds, Shorts & Reels` (the descriptor helps search) |
+| Package names | `@auctor/extension`, internal only; nothing is published to npm |
+
+## License
+
+**GPL-3.0**, a copyleft license. Anyone may use, change, share, or sell the code, but anyone who distributes it or a modified version must publish the full source under GPL-3.0 and keep the copyright notice. Private modifications are unrestricted, and the copyright holder can still publish to stores, charge money, or relicense their own code (relicensing contributors' code needs their agreement). It also includes a patent grant from contributors.
+
+Why not MIT:
+- **Trust is the product.** The Android app can see your screen. Under MIT, someone could fork it, add tracking, and ship it closed-source. GPL-3.0 doesn't prevent a bad fork, but it makes one impossible to hide.
+- **It's the norm** for privacy tools like uBlock Origin and NewPipe.
+- **Its cost**, that companies can't reuse the code in closed products, doesn't matter here.
+
+See [choosealicense.com](https://choosealicense.com/licenses/gpl-3.0/). *A summary, not legal advice.*
+
+## Roadmap
+
+| Phase | Scope |
+|---|---|
+| 0 | Repo setup: the files and conventions above, plus `docs/surfaces.md` |
+| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits |
+| 2 | Android app for YouTube and Facebook with the same surfaces and behavior (**the main target**) |
+| 3 | More apps: Instagram, TikTok, X, Reddit |
+
+## Technical notes
+
+### Extension
+- **URL rules first, DOM hiding second.** URL rules (`/shorts/<id>` → `/watch?v=<id>`) are stable. CSS selectors break whenever a site changes its layout and are the main maintenance cost.
+- YouTube and Facebook are single-page apps, so `declarativeNetRequest` alone misses in-app navigation. Content scripts watch for URL changes and use a `MutationObserver` for content that loads later.
+- Site rules live in data files, separate from logic, so fixing a broken site is a one-line change.
+
+### Android
+- An **`AccessibilityService`**, limited through `packageNames` to YouTube (`com.google.android.youtube`) and Facebook (`com.facebook.katana`) for privacy and battery.
+- The friction screen is a `TYPE_ACCESSIBILITY_OVERLAY`, so it needs no "draw over other apps" permission. **Go back** calls `GLOBAL_ACTION_BACK`.
+- **No `INTERNET` permission.** The service sees the screen, so being unable to send data anywhere is a promise anyone can verify. Trade-off: rule fixes ship as app updates.
+- The apps change their view IDs often, so expect rules to break and keep them as data.
+
+### Distribution
+- **Extension:** Chrome Web Store ($5 once), Firefox Add-ons and Edge Add-ons (free), all from the same Manifest V3 code with minor changes.
+- **Google Play:** $25 once. [Accessibility-based Shorts blockers are allowed](https://play.google.com/store/apps/details?id=com.muuu.unshort&hl=en_US), but need a prominent disclosure, user consent, a declaration form, and a stricter review.
+- **Outside Play (GitHub releases, F-Droid):** on Android 13+, users must turn on "Allow restricted settings" before a sideloaded app can use accessibility. [Developer verification](https://android-developers.googleblog.com/2026/03/android-developer-verification-rolling-out-to-all-developers.html) also applies (from September 30, 2026 in some countries, worldwide in 2027): apps must come from a verified developer to install normally. A [free limited-distribution account](https://www.androidauthority.com/android-sideloading-changes-timeline-3679204/) covers up to 20 devices, enough for personal use.
+
+## Logo: the authority point
+
+In *Plumons l'oiseau* (1966), Hervé Bazin proposed six new punctuation marks, none of which caught on. His **point d'autorité** is an exclamation mark with a cap that sits over a sentence *"comme un parasol sur le sultan"* ("like a parasol over the sultan"), marking a statement made with authority, such as an order or a verdict (p. 142, reproduced in [Unicode proposal L2/11-232R](http://www.unicode.org/L2/L2011/11232r-sup-punct-proposal.pdf)).
+
+It fits because the app speaks with the authority of your calm, planning self over your impulsive, scrolling self, which is how the research says limits work. The cap also shelters you from the feed. The mark was proposed for Unicode in 2011 but apparently never encoded, so the logo has to be drawn as an SVG.
+
+## Existing tools
+
+The space is crowded:
+- **Browser:** Unhook, News Feed Eradicator, UnDistracted, and Escape the Algorithm hide feeds. LeechBlock NG blocks sites on a schedule. HabitLab is Stanford's research extension, the source of two studies above.
+- **Android:** un:short, ScrollBreak, Blokr, Sprout, and Blockify block Shorts and Reels via accessibility. one sec, ScreenZen, and SpeedBump add friction before opening an app.
+- **YouTube** [added a daily Shorts limit](https://techcrunch.com/2025/10/22/youtube-adds-at-timer-for-you-to-stop-scrolling-shorts) in October 2025, but it can be turned off at any time.
+
+| Closest competitor | What it does | Overlap |
+|---|---|---|
+| [ShortStop](https://github.com/YameenMunir/ShortStop) (open-source extension) | Blocks Shorts, Reels, and feeds on YouTube, Facebook, Instagram, TikTok, and more. Search and messages work; no tracking or network requests. | **Very high for phase 1**, but it only blocks: no friction, limits, or delayed changes |
+| [Shortstop](https://play.google.com/store/apps/details?id=com.ladeon.shortstop) (Android, unrelated) | Blocks Shorts and Reels in apps, including Facebook Reels | High for phase 2; only blocks |
+| [Unreel](https://play.google.com/store/apps/details?id=app.unreel.blockreelsshorts) (Android) | Exits Shorts and Reels as they open; DMs and search work | High for phase 2; only blocks |
+| [Ekagra](https://play.google.com/store/apps/details?id=com.focus.ekagra) (Android) | A calm full-screen pause when opening a blocked app or Shorts/Reels | Friction like ours |
+| [brainrot-meter](https://github.com/hajar-benhadj/brainrot-meter) | Measures how brain-rotting your feed is, on the same stack (WXT + Kotlin/Compose) | Measures rather than intervenes; a useful reference |
+
+**What sets Auctor apart:**
+- **It follows the research** by combining removal, friction, and optional limits. Competitors pick one: ShortStop, Shortstop, and Unreel block; Ekagra and one sec add friction.
+- **Delayed changes that weaken protection**, which no competitor above advertises.
+- **GPL-3.0 and no internet permission on Android,** so the privacy claim can be checked.
+- **The same surfaces and behavior** on desktop and phone, in one project.
+
+## Open questions
+
+- [ ] Final name check of "Auctor" on GitHub, the Chrome Web Store, Google Play, Firefox Add-ons, and USPTO/EUIPO (earlier checks were light web searches)
+- [ ] Draw the authority-point logo as an SVG
+- [ ] How long access lasts after passing the prompt (for example, 5 minutes of Shorts)
+- [ ] A weekly summary (times you turned back, time saved)?
