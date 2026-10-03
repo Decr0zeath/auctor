@@ -1,7 +1,8 @@
 /**
  * The daily post: one quote over one painting, shown where a removed feed used to be, with a way
- * back to the feed under it. All of it changes once a day, at local midnight, so refreshing never
- * brings a new one: a post that changed on every visit would become a feed of its own.
+ * back to the feed under it. All of it, the prompt included, changes once a day, at local
+ * midnight, so refreshing never brings a new one: a post that changed on every visit would become
+ * a feed of its own.
  *
  * Every quote is checked word for word against a public-domain translation, and every painting
  * is in the public domain. The images themselves live with each app (`public/posts/<id>.webp`
@@ -26,11 +27,18 @@ export interface Painting {
   url: string;
 }
 
+/** The way back to the feed: its label, and the prompt it opens. */
+export interface GiveIn {
+  label: string;
+  /** A statement, not a question. */
+  title: string;
+  message: string;
+}
+
 export interface Post {
   quote: Quote;
   painting: Painting;
-  /** The label of the way back to the feed. */
-  giveIn: string;
+  giveIn: GiveIn;
 }
 
 const KJV = 'King James Version (1611)';
@@ -327,23 +335,93 @@ export const PAINTINGS: readonly Painting[] = [
 ];
 
 /**
- * The way back to the feed, under the post. It's the only thing to click there, so its wording
- * makes you think twice, and it still goes through the prompt.
+ * The way back to the feed, under the post, and the prompt it opens. It's the only thing to click
+ * there, so its wording makes you think twice. The prompt then says something rather than asking,
+ * following research on how such messages land (see the README's "Wording" research):
+ *
+ * - It speaks to you as "you", and to who you are rather than what you're doing.
+ * - The guilt stays implicit. It never calls you lazy or weak: shame makes people defensive.
+ * - It grants that the pull is human, and that rest is not weakness.
+ * - It names something better to do, out in the real world.
+ * - It ends by leaving the choice with you, so it doesn't read as an order.
  */
-export const GIVE_IN: readonly string[] = [
-  'Succumb to temptation',
-  'Abandon the vigil',
-  'Surrender to the feed',
-  'Lay down your sword',
-  'Fold your hands a little longer',
-  'Waste another hour',
-  'Desert your post',
-  'Choose the easy road',
-  'Put it off again',
-  'Kneel to the algorithm',
-  'Let the day slip away',
-  'Yield, just this once',
+export const GIVE_IN: readonly GiveIn[] = [
+  {
+    label: 'Succumb to temptation',
+    title: 'You are meant for more, not for this.',
+    message:
+      'The pull you feel is real, and everyone feels it. But indulging it never settles the craving; it only feeds the next one. The feed is built to never end, and your day is not. Spend the next hour on something you’ll be glad you did tonight. The choice is yours.',
+  },
+  {
+    label: 'Abandon the vigil',
+    title: 'You set this watch for a reason.',
+    message:
+      'On a clearer day, you decided this feed wasn’t worth your time. Nothing has changed since then but the craving, and cravings pass. Hold your post a little longer: stand up, take a breath, and turn to what’s in front of you. It’s your call.',
+  },
+  {
+    label: 'Surrender to the feed',
+    title: 'The feed has nothing you came here for.',
+    message:
+      'It was made by people paid to keep you scrolling, and it’s very good at its job. You can be better at yours. Close this tab and give your attention to something that gives something back. You’re free to choose.',
+  },
+  {
+    label: 'Lay down your sword',
+    title: 'Your strength is not for this.',
+    message:
+      'Discipline isn’t punishment. It’s choosing what you want most over what you want now, and what you want most isn’t in this feed. Pick up the thing you’ve been putting off and give it ten minutes. The choice is yours.',
+  },
+  {
+    label: 'Fold your hands a little longer',
+    title: 'Small surrenders add up.',
+    message:
+      'No one wastes a life in one sitting. It goes ten minutes at a time, exactly like this. You know what you’d rather do with these minutes. Go and do it, while the day is still yours. It’s your call.',
+  },
+  {
+    label: 'Waste another hour',
+    title: 'This hour will not come back.',
+    message:
+      'You can’t get back the hours already spent here, and that’s all right. You can still decide about this one. Spend it on something you’ll remember: a walk, a call, a page of real work. You decide.',
+  },
+  {
+    label: 'Desert your post',
+    title: 'Someone is counting on the best of you.',
+    message:
+      'Maybe it’s your family, your work, your health, or the person you’re trying to become. They won’t find you in this feed. Show up for them instead, even in a small way: one message, one page, one walk. The choice is yours.',
+  },
+  {
+    label: 'Choose the easy road',
+    title: 'The easy road leads nowhere you want to go.',
+    message:
+      'Needing rest isn’t weakness. But this isn’t rest: it leaves you more tired than it found you. If you need a break, take a real one, with water, fresh air, and a few slow breaths. It’s up to you.',
+  },
+  {
+    label: 'Put it off again',
+    title: 'Tomorrow is not promised.',
+    message:
+      'Putting things off feels harmless because the cost arrives later. It still arrives. Take the smallest piece of what you’re avoiding and give it five minutes. If you still want this afterwards, it will be here.',
+  },
+  {
+    label: 'Kneel to the algorithm',
+    title: 'You bow to no algorithm.',
+    message:
+      'Every scroll teaches it what will hold you a little longer. You decide what holds you. Choose one thing worth your attention today, and give it your best hour. You’re free to choose.',
+  },
+  {
+    label: 'Let the day slip away',
+    title: 'Your days are numbered. That is what makes them precious.',
+    message:
+      'Remembering that time runs out isn’t morbid. It’s how people find what matters to them, and this feed won’t be on that list. Picture today well spent, and take the first step toward it. The choice is yours.',
+  },
+  {
+    label: 'Yield, just this once',
+    title: 'It is never just once.',
+    message:
+      'Habits are built from choices that felt too small to matter. This one counts too. Turn back now, and the next time gets easier. Either way, the choice is yours.',
+  },
 ];
+
+/** How long giving in from the post waits. It's fixed, so no setting can shorten it. */
+export const GIVE_IN_WAIT_SECONDS = 120;
 
 /** Days since 1970-01-01 by the local calendar, so the post changes at local midnight. */
 export function dayNumber(date: Date): number {

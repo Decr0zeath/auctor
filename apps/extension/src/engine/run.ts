@@ -3,6 +3,7 @@
  * changes settings, or a pass runs out.
  */
 import { copy } from '@/catalog/copy';
+import { GIVE_IN_WAIT_SECONDS, postFor } from '@/catalog/posts';
 import { modeOf, nextDueAt, resolveDue } from '@/catalog/settings';
 import type { Settings } from '@/catalog/settings';
 import { surface } from '@/catalog/surfaces';
@@ -86,8 +87,12 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
     if (requested && !plan.replacements.some((item) => item.surface === requested)) {
       requested = null;
     }
+    const fromPost = plan.replacements.some(
+      (item) => item.surface === requested && item.replacement.post,
+    );
     const promptFor = plan.prompt ? plan.gated : requested;
-    if (promptFor) showPrompt(promptFor, settings, plan.prompt && passedHere);
+    if (promptFor && !plan.prompt && fromPost) showGiveIn(promptFor, settings);
+    else if (promptFor) showPrompt(promptFor, settings, plan.prompt && passedHere);
     else gate.close();
 
     clearTimeout(timer);
@@ -102,8 +107,23 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
     gate.show({
       key: `${id}:${timeIsUp ? 'time-up' : 'opening'}`,
       title: timeIsUp ? copy.passEndedTitle(name) : copy.promptTitle(name),
-      question: timeIsUp ? copy.passEndedQuestion : undefined,
+      message: timeIsUp ? copy.passEndedQuestion : undefined,
       waitSeconds: settings.waitSeconds,
+      passMinutes: settings.passMinutes,
+      onGoBack: () => goBack(id),
+      onContinue: () => void proceed(id, settings.passMinutes),
+    });
+  }
+
+  /** Giving in from the daily post: the day's words, and a fixed wait that no setting shortens. */
+  function showGiveIn(id: SurfaceId, settings: Settings) {
+    const { title, message } = postFor(new Date()).giveIn;
+    gate.show({
+      key: `${id}:give-in`,
+      title,
+      message,
+      variant: 'post',
+      waitSeconds: GIVE_IN_WAIT_SECONDS,
       passMinutes: settings.passMinutes,
       onGoBack: () => goBack(id),
       onContinue: () => void proceed(id, settings.passMinutes),

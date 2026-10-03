@@ -97,7 +97,7 @@ function renderPanel(
     'button',
     // With the post, the button gives in in the day's words, and its tooltip says what it does.
     { class: 'show-anyway', type: 'button', title: today ? replacement.showAnyway : undefined },
-    today?.giveIn ?? replacement.showAnyway,
+    today?.giveIn.label ?? replacement.showAnyway,
   );
   showAnyway.addEventListener('click', () => onShowAnyway(id));
 

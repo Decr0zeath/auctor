@@ -21,7 +21,9 @@ describe('the Facebook feed panel', () => {
 
     const root = document.querySelector('auctor-panel')!.shadowRoot!;
     const clickable = [...root.querySelectorAll<HTMLElement>('a, button, input, [role="button"]')];
-    expect(clickable.map((element) => element.textContent)).toEqual([postFor(new Date()).giveIn]);
+    expect(clickable.map((element) => element.textContent)).toEqual([
+      postFor(new Date()).giveIn.label,
+    ]);
     expect(clickable[0]!.title).toBe('Show the feed anyway');
 
     clickable[0]!.click();

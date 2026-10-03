@@ -39,7 +39,7 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 
 Where a removed feed was, there's **one post a day**: a painting with a quote over it. Under it, the only thing to click is the way back to the feed, worded to make you think twice ("Succumb to temptation", "Abandon the vigil", "Kneel to the algorithm"). It still goes through the prompt, and its tooltip says what it does.
 
-- The post and its way back change at **local midnight** and stay the same all day. Refreshing never brings a new one, because a post that changed on every visit would be a feed of its own.
+- The post, its way back, and the prompt it opens change at **local midnight** and stay the same all day. Refreshing never brings a new one, because a post that changed on every visit would be a feed of its own.
 - Quotes and paintings each go round in order, and the paintings shift one step each time the quotes start over, so in time every quote meets every painting. The same date gives the same post on every device.
 - Quotes come from the Stoics (Seneca, Marcus Aurelius, Epictetus) and the Bible (King James Version), about time, discipline, and putting things off. Each one is checked word for word against a public-domain translation.
 - Paintings are in the public domain, cropped to 4:5 at 960×1200, and ship with the app, so showing the post makes no network requests.
@@ -52,6 +52,7 @@ Where a removed feed was, there's **one post a day**: a painting with a quote ov
 - **Go back** is the main action and has focus. It returns to the last page outside the surface, or to a safe page if there isn't one.
 - **Continue** unlocks after the wait (default 15 seconds, counted only while the page is visible). It opens the surface for a pass (default 5 minutes).
 - When a pass runs out while the surface is open, the prompt returns: **"Your time with {name} is up."**
+- Giving in from the [daily post](#the-daily-post) opens a different prompt, which says rather than asks. Its title is a statement (**"You are meant for more, not for this."**), with a short message under it. Both change with the post, once a day. Its wait is a flat **2 minutes**, whatever the setting, and the pass is the usual one.
 - While the prompt is open, the page behind it can't be scrolled, typed into, or played.
 
 ## Delayed changes

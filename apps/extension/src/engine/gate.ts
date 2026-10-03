@@ -1,6 +1,7 @@
 /**
- * The friction prompt: a full-screen pause that asks why you're opening a surface, with
- * "Go back" as the main action and "Continue" unlocking after a short wait.
+ * The friction prompt: a full-screen pause that asks why you're opening a surface, or, when you
+ * give in from the daily post, tells you something about it. "Go back" is the main action, and
+ * "Continue" unlocks after a wait.
  */
 import { copy } from '@/catalog/copy';
 import type { ContentScriptContext } from 'wxt/utils/content-script-context';
@@ -11,7 +12,10 @@ export interface Prompt {
   /** Identifies the prompt, so showing the same prompt again doesn't restart its countdown. */
   key: string;
   title: string;
-  question?: string;
+  /** Text under the title. */
+  message?: string;
+  /** `post` sets the prompt like the daily post it was opened from, with room for its message. */
+  variant?: 'post';
   waitSeconds: number;
   passMinutes: number;
   onGoBack: () => void;
@@ -54,9 +58,9 @@ function render(ctx: ContentScriptContext, prompt: Prompt): () => void {
       { class: 'backdrop', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'title' },
       h(
         'div',
-        { class: 'card' },
+        { class: prompt.variant ? `card ${prompt.variant}` : 'card' },
         h('h1', { id: 'title' }, prompt.title),
-        prompt.question && h('p', { class: 'question' }, prompt.question),
+        prompt.message && h('p', { class: 'message' }, prompt.message),
         h('div', { class: 'actions' }, goBack, proceed),
         h('p', { class: 'footer' }, copy.promptFooter),
       ),

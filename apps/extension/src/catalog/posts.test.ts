@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GIVE_IN, PAINTINGS, QUOTES, dayNumber, postFor } from './posts';
+import { GIVE_IN, GIVE_IN_WAIT_SECONDS, PAINTINGS, QUOTES, dayNumber, postFor } from './posts';
 
 describe('the daily post', () => {
   it('stays the same all day, by the local calendar', () => {
@@ -46,7 +46,25 @@ describe('the daily post', () => {
   it('has no duplicate quotes, paintings, or ways back', () => {
     expect(new Set(QUOTES.map((quote) => quote.text)).size).toBe(QUOTES.length);
     expect(new Set(PAINTINGS.map((painting) => painting.id)).size).toBe(PAINTINGS.length);
-    expect(new Set(GIVE_IN).size).toBe(GIVE_IN.length);
+    for (const key of ['label', 'title', 'message'] as const) {
+      expect(new Set(GIVE_IN.map((giveIn) => giveIn[key])).size, key).toBe(GIVE_IN.length);
+    }
+  });
+
+  it('words the way back as a statement that leaves the choice with you', () => {
+    for (const { title, message } of GIVE_IN) {
+      expect(title, title).toMatch(/\.$/);
+      // No orders: controlling words make people push back.
+      expect(`${title} ${message}`, title).not.toMatch(/\b(must|should|have to|need to)\b/i);
+      // Each message ends on the choice, said outright or left with you.
+      expect(message, title).toMatch(
+        /(yours|your call|up to you|You decide|free to choose|will be here)\.$/,
+      );
+    }
+  });
+
+  it('makes giving in from the post wait two minutes', () => {
+    expect(GIVE_IN_WAIT_SECONDS).toBe(120);
   });
 
   it('keeps quotes short enough to fit over a painting', () => {
