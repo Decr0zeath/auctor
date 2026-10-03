@@ -4,7 +4,7 @@
  */
 import type { Mode, SurfaceId } from '@/catalog/surfaces';
 import { surfaceRules } from '@/sites/types';
-import type { Replacement, Site, UrlPattern } from '@/sites/types';
+import type { Replacement, Rewrite, Site, UrlPattern } from '@/sites/types';
 
 /** When each surface's pass runs out, as a timestamp. */
 export type Passes = Partial<Record<SurfaceId, number>>;
@@ -20,6 +20,13 @@ export interface PageInput {
 export interface Plan {
   /** Selectors to hide. */
   hide: string[];
+  /** Extra CSS, for what hiding leaves behind. */
+  css: string[];
+  rewrite: Rewrite[];
+  /** Media to pause whenever it plays. */
+  pause: string[];
+  /** Switches to turn off whenever they're on. */
+  switchOff: string[];
   replacements: { surface: SurfaceId; replacement: Replacement }[];
   /** The surface this page belongs to, if that surface sits behind the friction prompt. */
   gated: SurfaceId | null;
@@ -41,7 +48,17 @@ const matches = (source: UrlPattern | undefined, path: string): boolean =>
   source === undefined || pattern(source).test(path);
 
 export function planPage(site: Site, { path, modeOf, passes, now }: PageInput): Plan {
-  const plan: Plan = { hide: [], replacements: [], gated: null, prompt: false, passEndsAt: null };
+  const plan: Plan = {
+    hide: [],
+    css: [],
+    rewrite: [],
+    pause: [],
+    switchOff: [],
+    replacements: [],
+    gated: null,
+    prompt: false,
+    passEndsAt: null,
+  };
 
   for (const [id, rules] of surfaceRules(site)) {
     const mode = modeOf(id);
@@ -60,6 +77,10 @@ export function planPage(site: Site, { path, modeOf, passes, now }: PageInput): 
     for (const rule of rules.hide ?? []) {
       if (matches(rule.on, path)) plan.hide.push(...rule.selectors);
     }
+    if (rules.css) plan.css.push(rules.css);
+    plan.rewrite.push(...(rules.rewrite ?? []));
+    plan.pause.push(...(rules.pause ?? []));
+    plan.switchOff.push(...(rules.switchOff ?? []));
     if (rules.replacement && matches(rules.replacement.on, path)) {
       plan.replacements.push({ surface: id, replacement: rules.replacement });
     }

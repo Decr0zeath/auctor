@@ -1,4 +1,4 @@
-import { surface } from '@/catalog/surfaces';
+import { surface, surfacesOf } from '@/catalog/surfaces';
 import type { Mode, SurfaceId } from '@/catalog/surfaces';
 import facebook from '@/sites/facebook';
 import youtube from '@/sites/youtube';
@@ -64,17 +64,168 @@ describe('YouTube', () => {
   });
 
   it('does nothing for a surface that is off', () => {
-    const off = {
-      'youtube.home-feed': 'off',
-      'youtube.shorts': 'off',
-      'youtube.recommendations': 'off',
-    } as const;
+    const off = Object.fromEntries(surfacesOf('youtube').map((id) => [id, 'off' as const]));
     expect(planPage(youtube, input('/shorts/abc', off))).toEqual({
       hide: [],
+      css: [],
+      rewrite: [],
+      pause: [],
+      switchOff: [],
       replacements: [],
       gated: null,
       prompt: false,
       passEndsAt: null,
+    });
+  });
+
+  it('switches autoplay off along with Up next', () => {
+    const autoplay = '.ytp-autonav-toggle-button[aria-checked="true"]';
+    expect(planPage(youtube, input('/watch?v=abc')).switchOff).toEqual([autoplay]);
+    const off = { 'youtube.recommendations': 'off' } as const;
+    expect(planPage(youtube, input('/watch?v=abc', off)).switchOff).toEqual([]);
+  });
+
+  describe('the optional limits', () => {
+    const OPTIONAL = [
+      'youtube.search-shelves',
+      'youtube.previews',
+      'youtube.thumbnails',
+      'youtube.counts',
+      'youtube.comments',
+      'youtube.notifications',
+      'youtube.menu',
+    ] as const;
+    const on = Object.fromEntries(OPTIONAL.map((id) => [id, 'remove' as const]));
+
+    it('are off by default', () => {
+      for (const id of OPTIONAL) expect(surface(id).defaultMode, id).toBe('off');
+      const plan = planPage(youtube, input('/results?search_query=x'));
+      expect(plan).toMatchObject({ css: [], rewrite: [], pause: [] });
+      expect(plan.hide).not.toContain('ytd-search ytd-shelf-renderer');
+      expect(plan.hide).not.toContain('ytd-watch-flexy #comments');
+    });
+
+    it('apply on every page once on, but search shelves only in search', () => {
+      for (const path of ['/', '/results?search_query=x', '/watch?v=abc', '/@channel/videos']) {
+        const plan = planPage(youtube, input(path, on));
+        expect(plan.rewrite, path).toHaveLength(1);
+        expect(plan.pause, path).toEqual(['#video-preview video']);
+        expect(plan.hide, path).toEqual(
+          expect.arrayContaining([
+            '#video-preview',
+            'ytd-watch-flexy #comments',
+            'ytd-masthead ytd-notification-topbar-button-renderer',
+            'ytd-app tp-yt-app-drawer#guide',
+          ]),
+        );
+        expect(plan.hide.includes('ytd-search ytd-shelf-renderer'), path).toBe(
+          path.startsWith('/results'),
+        );
+      }
+    });
+
+    it('take back the room the menu left', () => {
+      const { css } = planPage(youtube, input('/', { 'youtube.menu': 'remove' }));
+      expect(css).toEqual(['ytd-app ytd-page-manager { margin-left: 0 !important; }']);
+    });
+  });
+
+  describe('thumbnails', () => {
+    const rule = youtube.surfaces['youtube.thumbnails']!.rewrite![0]!;
+    const rewrite = (src: string) => {
+      const pattern = new RegExp(rule.from);
+      return pattern.test(src) ? src.replace(pattern, rule.to) : src;
+    };
+
+    it('become a frame from the middle of the video', () => {
+      const frame = 'https://i.ytimg.com/vi/APXDVlNd10M/hq2.jpg';
+      for (const src of [
+        'https://i.ytimg.com/vi/APXDVlNd10M/hqdefault.jpg?sqp=-oaymwErCOADEI4C&rs=AOn4CLAx',
+        'https://i.ytimg.com/vi/APXDVlNd10M/hq720.jpg?sqp=-oaymwEc',
+        'https://i.ytimg.com/vi/APXDVlNd10M/hq720_2.jpg',
+        'https://i.ytimg.com/vi/APXDVlNd10M/hqdefault_2866.jpg',
+        'https://i9.ytimg.com/vi_webp/APXDVlNd10M/maxresdefault.webp',
+      ]) {
+        expect(rewrite(src), src).toBe(frame);
+      }
+    });
+
+    it('leave frames, Shorts, live streams, and avatars alone', () => {
+      for (const src of [
+        'https://i.ytimg.com/vi/APXDVlNd10M/hq2.jpg',
+        'https://i.ytimg.com/vi/APXDVlNd10M/oar2.jpg?sqp=x',
+        'https://i.ytimg.com/vi/APXDVlNd10M/hqdefault_live.jpg',
+        'https://yt3.ggpht.com/ytc/AIdro_lsdcmm=s68-c-k-c0x00ffffff-no-rj',
+      ]) {
+        expect(rewrite(src), src).toBe(src);
+      }
+    });
+  });
+
+  describe('counts', () => {
+    // Cut down to their structure on the live site on 2026-10-03: an artist's card in search
+    // with its header and two cards, a search result, and two video pages, one of them live.
+    const row = (...parts: string[]) =>
+      `<div class="ytContentMetadataViewModelMetadataRow">${parts.join('')}</div>`;
+    const text = (value: string, last = false) =>
+      `<span role="text" class="${last ? 'ytContentMetadataViewModelMetadataTextLastPart' : ''}">${value}</span>`;
+    const dot = '<span class="ytContentMetadataViewModelDelimiter">•</span>';
+    const icon = '<span class="ytContentMetadataViewModelLeadingIcon">▷</span>';
+    const page = `
+      <yt-page-header-view-model><yt-content-metadata-view-model>
+        ${row(text('@TaylorSwift', true))}
+        ${row(text('63.5M subscribers'), dot, text('666 videos', true))}
+      </yt-content-metadata-view-model></yt-page-header-view-model>
+      <yt-content-metadata-view-model>
+        ${row('<span>Taylor Swift</span>', dot, icon, text('535M'), dot, text('11mo ago', true))}
+      </yt-content-metadata-view-model>
+      <yt-content-metadata-view-model>
+        ${row(text('YouTube'), dot, text('Playlist', true))}
+      </yt-content-metadata-view-model>
+      <ytd-video-renderer><div id="metadata-line">
+        <span class="inline-metadata-item">238K views</span>
+        <span class="inline-metadata-item">8 years ago</span>
+      </div></ytd-video-renderer>
+      <ytd-watch-info-text><yt-formatted-string id="info">
+        <span>439M views</span><span>&nbsp;</span><span>21 years ago</span>
+      </yt-formatted-string></ytd-watch-info-text>
+      <ytd-watch-info-text><yt-formatted-string id="info">
+        <span>1,187</span><span>watching now</span><span>Started streaming 16 hours ago</span>
+      </yt-formatted-string></ytd-watch-info-text>
+      <like-button-view-model><button><div class="ytSpecButtonShapeNextButtonTextContent">19M</div></button></like-button-view-model>
+      <ytd-video-owner-renderer>
+        <a>jawed</a><yt-formatted-string id="owner-sub-count">6.65M subscribers</yt-formatted-string>
+      </ytd-video-owner-renderer>`;
+
+    /** The text left showing with the given modes, as the page's leaves read it. */
+    function visible(modes: Partial<Record<SurfaceId, Mode>> = {}): string[] {
+      document.body.innerHTML = page;
+      const { hide } = planPage(youtube, input('/results?search_query=x', modes));
+      return [...document.querySelectorAll('body *')]
+        .filter((element) => element.children.length === 0 && element.textContent!.trim())
+        .filter((element) => !hide.some((selector) => element.closest(selector)))
+        .map((element) => element.textContent!.trim())
+        .filter((value) => value !== '•');
+    }
+
+    it('are left alone by default', () => {
+      expect(visible()).toContain('63.5M subscribers');
+      expect(visible()).toContain('19M');
+    });
+
+    it('go, leaving the names, dates, and number of videos', () => {
+      expect(visible({ 'youtube.counts': 'remove' })).toEqual([
+        '@TaylorSwift',
+        '666 videos',
+        'Taylor Swift',
+        '11mo ago',
+        'YouTube',
+        'Playlist',
+        '8 years ago',
+        '21 years ago',
+        'Started streaming 16 hours ago',
+        'jawed',
+      ]);
     });
   });
 
