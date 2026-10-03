@@ -19,7 +19,7 @@ const shortsOff: Change = { setting: 'mode', surface: 'youtube.shorts', value: '
 describe('modeOf', () => {
   it('uses the catalogue default when nothing is set', () => {
     expect(modeOf(DEFAULT_SETTINGS, 'youtube.shorts')).toBe('remove');
-    expect(modeOf(DEFAULT_SETTINGS, 'facebook.reels')).toBe('friction');
+    expect(modeOf(DEFAULT_SETTINGS, 'facebook.reels')).toBe('remove');
     expect(modeOf(DEFAULT_SETTINGS, 'youtube.home-feed')).toBe('off');
   });
 

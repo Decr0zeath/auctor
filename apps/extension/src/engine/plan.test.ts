@@ -108,9 +108,31 @@ describe('Facebook', () => {
       '/marketplace/',
     ]) {
       const plan = planPage(facebook, input(path));
-      expect(plan.hide, path).toEqual([]);
+      // Only the top bar's tabs, which are removed on every page.
+      const hidden = plan.hide.filter((selector) => !selector.startsWith('[role="banner"]'));
+      expect(hidden, path).toEqual([]);
       expect(plan.replacements, path).toEqual([]);
     }
+  });
+
+  const tab = (path: string) => `[role="banner"] [role="navigation"] li:has(a[href^="${path}"])`;
+
+  it('removes every top bar tab but Home, on every page', () => {
+    for (const path of ['/', '/groups/feed/', '/marketplace/', '/profile.php?id=4']) {
+      const { hide } = planPage(facebook, input(path));
+      for (const href of ['/reel', '/marketplace', '/groups', '/gaming']) {
+        expect(hide, `${path} ${href}`).toContain(tab(href));
+      }
+      expect(hide, path).not.toContain(tab('/'));
+    }
+  });
+
+  it('keeps a top bar tab that is off, and the Reels tab in friction mode', () => {
+    const modes = { 'facebook.groups': 'off', 'facebook.reels': 'friction' } as const;
+    const { hide } = planPage(facebook, input('/', modes));
+    expect(hide).not.toContain(tab('/groups'));
+    expect(hide).not.toContain(tab('/reel'));
+    expect(hide).toContain(tab('/marketplace'));
   });
 
   it('removes the stories row on the home page', () => {
@@ -133,8 +155,11 @@ describe('Facebook', () => {
   });
 
   it('puts Reels and the old Video tab behind the prompt', () => {
-    for (const path of ['/reel/123', '/reel/?s=tab', '/reels/', '/watch/', '/watch?ref=tab']) {
-      expect(planPage(facebook, input(path)).gated, path).toBe('facebook.reels');
+    for (const mode of ['remove', 'friction'] as const) {
+      for (const path of ['/reel/123', '/reel/?s=tab', '/reels/', '/watch/', '/watch?ref=tab']) {
+        const plan = planPage(facebook, input(path, { 'facebook.reels': mode }));
+        expect(plan.gated, `${mode} ${path}`).toBe('facebook.reels');
+      }
     }
   });
 

@@ -7,6 +7,12 @@ const HOME = '^/(home\\.php)?(\\?(?!.*\\bfilter=).*)?$';
 // Facebook randomizes class names, so these rely on structure, ARIA, and attributes instead.
 const FEED_SECTION = '[role="main"] div:has(> h3 + [aria-hidden="true"] + div)';
 
+// A tab in the top bar, found by where it links so it works in any language. Checked against the
+// live site on 2026-10-03: the Menu popover and the left sidebar link to the same pages, but
+// they're outside the top bar's navigation, so they stay.
+const topBarTab = (path: string) =>
+  `[role="banner"] [role="navigation"] li:has(a[href^="${path}"])`;
+
 export default defineSite({
   site: 'facebook',
   // web.facebook.com is the default host in some regions.
@@ -64,9 +70,27 @@ export default defineSite({
       gate: '^/stories/(?!create\\b)',
     },
     'facebook.reels': {
+      hide: [
+        {
+          selectors: [
+            topBarTab('/reel'),
+            // Fallback: the Video tab, which older layouts show instead of Reels.
+            topBarTab('/watch'),
+          ],
+        },
+      ],
       // Reels, and the old Video tab (`/watch`), which now redirects to Reels. A link to a
       // specific video (`/watch/?v=…`) still opens normally.
       gate: '^/(reels?(/|$)|watch/?(\\?(?!.*\\bv=).*)?$)',
+    },
+    'facebook.marketplace': {
+      hide: [{ selectors: [topBarTab('/marketplace')] }],
+    },
+    'facebook.groups': {
+      hide: [{ selectors: [topBarTab('/groups')] }],
+    },
+    'facebook.gaming': {
+      hide: [{ selectors: [topBarTab('/gaming')] }],
     },
   },
 });

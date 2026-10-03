@@ -78,9 +78,37 @@ export const SURFACES = {
     site: 'facebook',
     label: 'Reels',
     name: 'Facebook Reels',
-    description: 'The Reels player, including the old Video tab, which now opens Reels',
-    modes: ['friction', 'off'],
-    defaultMode: 'friction',
+    description:
+      'The Reels tab in the top bar, and the Reels player, which the old Video tab opens',
+    modes: ['remove', 'friction', 'off'],
+    defaultMode: 'remove',
+  },
+  // The top bar's other tabs. Removing one hides the tab only: the pages still open from search
+  // and links, so the top bar can be cut down to Home.
+  'facebook.marketplace': {
+    site: 'facebook',
+    label: 'Marketplace',
+    name: 'Facebook Marketplace',
+    description:
+      'The Marketplace tab in the top bar. Marketplace still opens from search and links.',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
+  'facebook.groups': {
+    site: 'facebook',
+    label: 'Groups',
+    name: 'Facebook Groups',
+    description: 'The Groups tab in the top bar. Your groups still open from search and links.',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
+  'facebook.gaming': {
+    site: 'facebook',
+    label: 'Gaming',
+    name: 'Facebook Gaming',
+    description: 'The Gaming tab in the top bar',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
   },
 } as const satisfies Record<string, Surface>;
 
