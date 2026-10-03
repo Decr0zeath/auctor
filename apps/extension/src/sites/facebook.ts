@@ -8,10 +8,14 @@ const HOME = '^/(home\\.php)?(\\?(?!.*\\bfilter=).*)?$';
 const FEED_SECTION = '[role="main"] div:has(> h3 + [aria-hidden="true"] + div)';
 
 // A tab in the top bar, found by where it links so it works in any language. Checked against the
-// live site on 2026-10-03: the Menu popover and the left sidebar link to the same pages, but
-// they're outside the top bar's navigation, so they stay.
+// live site on 2026-10-03: the Menu popover links to the same pages, but it's outside the top
+// bar's navigation, so it stays.
 const topBarTab = (path: string) =>
   `[role="banner"] [role="navigation"] li:has(a[href^="${path}"])`;
+
+// An item in the home page's left sidebar, found by its link's attribute selectors. The links are
+// absolute, and the shortcuts list can hold single groups (`/groups/<id>/`) or games.
+const sidebarLink = (attributes: string) => `[role="navigation"] li:has(a${attributes})`;
 
 export default defineSite({
   site: 'facebook',
@@ -78,19 +82,75 @@ export default defineSite({
             topBarTab('/watch'),
           ],
         },
+        {
+          on: HOME,
+          selectors: [sidebarLink('[href*="/reel/"]'), sidebarLink('[href*="/watch/"]')],
+        },
       ],
       // Reels, and the old Video tab (`/watch`), which now redirects to Reels. A link to a
       // specific video (`/watch/?v=…`) still opens normally.
       gate: '^/(reels?(/|$)|watch/?(\\?(?!.*\\bv=).*)?$)',
     },
     'facebook.marketplace': {
-      hide: [{ selectors: [topBarTab('/marketplace')] }],
+      hide: [
+        { selectors: [topBarTab('/marketplace')] },
+        { on: HOME, selectors: [sidebarLink('[href*="/marketplace/"]')] },
+      ],
     },
     'facebook.groups': {
-      hide: [{ selectors: [topBarTab('/groups')] }],
+      hide: [
+        { selectors: [topBarTab('/groups')] },
+        {
+          on: HOME,
+          // The Groups page only, so shortcuts to single groups (`/groups/<id>/`) stay.
+          selectors: [sidebarLink('[href$="/groups/"]'), sidebarLink('[href*="/groups/?"]')],
+        },
+      ],
     },
     'facebook.gaming': {
-      hide: [{ selectors: [topBarTab('/gaming')] }],
+      hide: [
+        { selectors: [topBarTab('/gaming')] },
+        // Gaming Video and Play games, under "See more".
+        { on: HOME, selectors: [sidebarLink('[href*="/gaming/"]')] },
+      ],
+    },
+    'facebook.search': {
+      // The search box, next to the logo. Checked against the live site on 2026-10-03.
+      hide: [{ selectors: ['[role="banner"] label:has(input[type="search"])'] }],
+    },
+    'facebook.sidebar': {
+      hide: [
+        {
+          on: HOME,
+          // The sidebar sits next to the main column. Hiding what's inside it, not the sidebar
+          // itself, keeps its width, so the main column stays centered. Checked against the live
+          // site on 2026-10-03.
+          selectors: [':has(> [role="main"]) > [role="navigation"] > *'],
+        },
+      ],
+    },
+    'facebook.sponsored': {
+      hide: [
+        {
+          on: HOME,
+          selectors: [
+            // In the right panel, only ad links carry `attributionsrc` (elsewhere, so does the
+            // Meta AI link). The outermost match is the Sponsored section, because its parent
+            // also holds the Contacts list. Checked against the live site on 2026-10-03.
+            '[role="complementary"] div:has(a[attributionsrc]):not(:has(ul))',
+          ],
+        },
+      ],
+    },
+    'facebook.contacts': {
+      hide: [
+        {
+          on: HOME,
+          // The right panel's sections with a list: Contacts and Group chats. Checked against the
+          // live site on 2026-10-03.
+          selectors: ['[role="complementary"] [data-visualcompletion="ignore-dynamic"]:has(ul)'],
+        },
+      ],
     },
   },
 });

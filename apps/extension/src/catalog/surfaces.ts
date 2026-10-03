@@ -79,18 +79,18 @@ export const SURFACES = {
     label: 'Reels',
     name: 'Facebook Reels',
     description:
-      'The Reels tab in the top bar, and the Reels player, which the old Video tab opens',
+      'Reels in the top bar and the left sidebar, and the Reels player, which the old Video tab opens',
     modes: ['remove', 'friction', 'off'],
     defaultMode: 'remove',
   },
-  // The top bar's other tabs. Removing one hides the tab only: the pages still open from search
-  // and links, so the top bar can be cut down to Home.
+  // The top bar's other tabs, and the same links in the left sidebar. Removing one hides those
+  // links only: the pages still open from search and links, so the top bar can be cut down to Home.
   'facebook.marketplace': {
     site: 'facebook',
     label: 'Marketplace',
     name: 'Facebook Marketplace',
     description:
-      'The Marketplace tab in the top bar. Marketplace still opens from search and links.',
+      'Marketplace in the top bar and the left sidebar. It still opens from search and links.',
     modes: ['remove', 'off'],
     defaultMode: 'remove',
   },
@@ -98,7 +98,8 @@ export const SURFACES = {
     site: 'facebook',
     label: 'Groups',
     name: 'Facebook Groups',
-    description: 'The Groups tab in the top bar. Your groups still open from search and links.',
+    description:
+      'Groups in the top bar and the left sidebar. Your groups still open from search and links.',
     modes: ['remove', 'off'],
     defaultMode: 'remove',
   },
@@ -106,7 +107,41 @@ export const SURFACES = {
     site: 'facebook',
     label: 'Gaming',
     name: 'Facebook Gaming',
-    description: 'The Gaming tab in the top bar',
+    description: 'Gaming in the top bar, and Gaming Video and Play games in the left sidebar',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
+  'facebook.search': {
+    site: 'facebook',
+    label: 'Search bar',
+    name: 'Facebook search',
+    description: 'The search bar in the top bar. The feed panel on the home page has its own.',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
+  // The rest of the home page's side panels.
+  'facebook.sidebar': {
+    site: 'facebook',
+    label: 'Left sidebar',
+    name: 'the Facebook sidebar',
+    description: 'Everything on the left of the home page: the menu and your shortcuts',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
+  'facebook.sponsored': {
+    site: 'facebook',
+    label: 'Sponsored',
+    name: 'Facebook ads',
+    description: 'The ads in the right panel',
+    modes: ['remove', 'off'],
+    defaultMode: 'remove',
+  },
+  'facebook.contacts': {
+    site: 'facebook',
+    label: 'Contacts',
+    name: 'Facebook contacts',
+    description:
+      'The Contacts and Group chats lists in the right panel. Chats still open from Messenger.',
     modes: ['remove', 'off'],
     defaultMode: 'remove',
   },
