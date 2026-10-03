@@ -7,6 +7,7 @@
   --border: rgb(28 27 26 / 0.12);
   --accent: #1c1b1a;
   --on-accent: #ffffff;
+  --off: rgb(28 27 26 / 0.09);
   --pending: #8a5a00;
 }
 
@@ -19,6 +20,7 @@
     --border: rgb(242 240 236 / 0.14);
     --accent: #f2f0ec;
     --on-accent: #1c1b1a;
+    --off: rgb(242 240 236 / 0.12);
     --pending: #e8b65a;
   }
 }
@@ -40,7 +42,7 @@ body {
 }
 
 #app {
-  padding: 20px 16px;
+  padding: 14px 14px 12px;
 }
 
 body.popup {
@@ -48,62 +50,27 @@ body.popup {
 }
 
 body.options #app {
-  max-width: 640px;
+  max-width: 520px;
   margin: 0 auto;
   padding: 40px 16px;
 }
 
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
 h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
 }
 
-h2 {
-  margin: 0 0 4px;
+.tagline {
+  margin: 0;
+  color: var(--muted);
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.tagline,
-.rule,
-.hint {
-  margin: 2px 0 0;
-  color: var(--muted);
-}
-
-.rule {
-  margin-top: 12px;
-  font-size: 13px;
-}
-
-section {
-  margin-top: 24px;
-}
-
-.row {
-  display: grid;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.label {
-  display: grid;
-  gap: 2px;
-}
-
-.label span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-label.label {
-  grid-template-columns: 1fr auto;
-  align-items: center;
 }
 
 button,
@@ -112,22 +79,96 @@ select {
   color: inherit;
 }
 
+/* Site tabs */
+
+.tabs {
+  display: flex;
+  margin-top: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs button {
+  flex: 1;
+  margin-bottom: -1px;
+  padding: 7px 4px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  color: var(--text);
+}
+
+.tabs button[aria-selected='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--pending);
+  vertical-align: middle;
+}
+
+/* Rows: the name on the left, the control on the right, on one line. */
+
+.panel {
+  padding-top: 2px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.name[title] {
+  cursor: help;
+}
+
+/* A fixed width lines the controls up whether a surface has two modes or three. */
 .modes {
-  display: inline-flex;
-  width: fit-content;
-  padding: 3px;
+  display: flex;
+  width: 204px;
+  padding: 2px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--surface);
 }
 
 .modes button {
-  min-width: 76px;
-  padding: 5px 12px;
+  flex: 1;
+  padding: 2px 6px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 6px;
   background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.modes button:hover {
+  color: var(--text);
 }
 
 .modes button[aria-pressed='true'] {
@@ -136,25 +177,30 @@ select {
   font-weight: 600;
 }
 
-select,
-.buttons button {
-  padding: 6px 10px;
+/* Off is a choice, not protection, so it doesn't get the strong fill. */
+.modes button[aria-pressed='true'][data-mode='off'] {
+  background: var(--off);
+  color: var(--text);
+}
+
+/* The mode a pending change will switch to. */
+.modes button.queued {
+  box-shadow: inset 0 0 0 1.5px var(--pending);
+}
+
+select {
+  padding: 3px 8px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
   cursor: pointer;
 }
 
-.buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
 .pending {
+  grid-column: 1 / -1;
   margin: 0;
   color: var(--pending);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .pending button,
@@ -166,12 +212,57 @@ select,
   cursor: pointer;
 }
 
-.notice {
+/* General */
+
+h2 {
   margin: 12px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-footer {
-  margin-top: 20px;
+.backup {
+  margin: 6px 0 0;
+}
+
+.hint,
+.rule {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rule {
+  margin-top: 10px;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.buttons button {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.notice {
+  margin: 8px 0 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 :focus-visible {

@@ -1,5 +1,6 @@
 /**
- * The settings screen, used by both the toolbar popup and the options page.
+ * The settings screen, used by both the toolbar popup and the options page. Each site has a tab
+ * with one compact row per surface; the pause and backup sit under General.
  */
 import { copy } from '@/catalog/copy';
 import {
@@ -25,14 +26,44 @@ import { browser } from 'wxt/browser';
 
 const DELAY_HOURS = WEAKEN_DELAY_MS / 3_600_000;
 
+type Tab = SiteId | 'general';
+const TABS: Tab[] = [...(Object.keys(SITES) as SiteId[]), 'general'];
+const TAB_KEY = 'auctor:tab';
+
+const tabName = (tab: Tab): string => (tab === 'general' ? 'General' : SITES[tab].name);
+
+/** The settings each tab holds, as change keys. */
+const keysOf = (tab: Tab): string[] =>
+  tab === 'general' ? ['waitSeconds', 'passMinutes'] : surfacesOf(tab).map((id) => `mode:${id}`);
+
 const when = new Intl.DateTimeFormat(undefined, {
   weekday: 'short',
   hour: 'numeric',
   minute: '2-digit',
 });
 
+/** Reopening the popup returns to the last tab. Storage can be blocked, so it's only a nicety. */
+function savedTab(): Tab {
+  try {
+    const tab = localStorage.getItem(TAB_KEY) as Tab | null;
+    if (tab && TABS.includes(tab)) return tab;
+  } catch {
+    // Fall through to the first tab.
+  }
+  return TABS[0]!;
+}
+
+function saveTab(tab: Tab) {
+  try {
+    localStorage.setItem(TAB_KEY, tab);
+  } catch {
+    // Not worth surfacing.
+  }
+}
+
 export async function mountSettings(root: HTMLElement, { full }: { full: boolean }) {
   let state: State = await updateState((current) => current);
+  let tab = savedTab();
   let notice = '';
 
   const change = (next: Change) => updateState((current, now) => requestChange(current, next, now));
@@ -53,36 +84,77 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
         h('h1', {}, 'Auctor'),
         h('p', { class: 'tagline' }, 'Be the author of your attention.'),
       ),
+      tabList(),
+      h(
+        'div',
+        { class: 'panel', role: 'tabpanel', id: 'panel', 'aria-labelledby': `tab-${tab}` },
+        ...(tab === 'general' ? generalPanel() : surfacesOf(tab).map(surfaceRow)),
+      ),
       h(
         'p',
         { class: 'rule' },
-        `Changes that loosen protection take effect after ${DELAY_HOURS} hours. Tightening takes effect right away.`,
+        `Loosening protection waits ${DELAY_HOURS} hours. Tightening is instant.`,
       ),
-      ...(Object.keys(SITES) as SiteId[]).map(siteSection),
-      pauseSection(),
-      full ? backupSection() : footer(),
     );
     if (focused) root.querySelector<HTMLElement>(`[data-focus="${focused}"]`)?.focus();
   }
 
-  function siteSection(site: SiteId) {
-    return h(
-      'section',
-      {},
-      h('h2', {}, SITES[site].name),
-      ...surfacesOf(site).map((id) => surfaceRow(id)),
-    );
+  function select(next: Tab, focus: boolean) {
+    tab = next;
+    saveTab(next);
+    render();
+    if (focus) root.querySelector<HTMLElement>(`[data-focus="tab:${next}"]`)?.focus();
+  }
+
+  function tabList() {
+    const tabs = TABS.map((id) => {
+      const selected = id === tab;
+      const waiting = state.pending.some((p) => keysOf(id).includes(changeKey(p.change)));
+      const button = h(
+        'button',
+        {
+          type: 'button',
+          role: 'tab',
+          id: `tab-${id}`,
+          'aria-selected': String(selected),
+          'aria-controls': 'panel',
+          tabindex: selected ? '0' : '-1',
+          'data-focus': `tab:${id}`,
+        },
+        tabName(id),
+        waiting &&
+          h(
+            'span',
+            { class: 'dot', title: 'A change is waiting' },
+            h('span', { class: 'sr-only' }, ' (change waiting)'),
+          ),
+      );
+      button.addEventListener('click', () => select(id, false));
+      return button;
+    });
+    const list = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Settings' }, ...tabs);
+    list.addEventListener('keydown', (event) => {
+      const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      event.preventDefault();
+      select(TABS[(TABS.indexOf(tab) + step + TABS.length) % TABS.length]!, true);
+    });
+    return list;
   }
 
   function surfaceRow(id: SurfaceId) {
     const { label, description, modes } = surface(id);
     const current = modeOf(state.settings, id);
+    const pending = pendingFor(state, `mode:${id}`);
+    const queued = pending?.change.setting === 'mode' ? pending.change.value : undefined;
     const modeButtons = modes.map((mode) => {
       const button = h(
         'button',
         {
           type: 'button',
           title: copy.modes[mode].hint,
+          class: mode === queued ? 'queued' : undefined,
+          'data-mode': mode,
           'aria-pressed': String(mode === current),
           'data-focus': `${id}:${mode}`,
         },
@@ -91,24 +163,33 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
       button.addEventListener('click', () => change({ setting: 'mode', surface: id, value: mode }));
       return button;
     });
-    const pending = pendingFor(state, `mode:${id}`);
     return h(
       'div',
       { class: 'row' },
-      h('div', { class: 'label' }, h('strong', {}, label), h('span', {}, description)),
-      h('div', { class: 'modes', role: 'group', 'aria-label': label }, ...modeButtons),
-      pending?.change.setting === 'mode' &&
+      // The description is a tooltip here, and read out with the buttons for screen readers.
+      h('span', { class: 'name', title: description }, label),
+      h('span', { class: 'sr-only', id: `about-${id}` }, description),
+      h(
+        'div',
+        {
+          class: 'modes',
+          role: 'group',
+          'aria-label': label,
+          'aria-describedby': `about-${id}`,
+        },
+        ...modeButtons,
+      ),
+      pending &&
+        queued &&
         pendingLine(
-          `Turns ${copy.modes[pending.change.value].label} on ${when.format(pending.effectiveAt)}.`,
-          changeKey(pending.change),
+          `Turns ${copy.modes[queued].label} on ${when.format(pending.effectiveAt)}.`,
+          `mode:${id}`,
         ),
     );
   }
 
-  function pauseSection() {
-    return h(
-      'section',
-      {},
+  function generalPanel() {
+    return [
       h('h2', {}, 'The pause'),
       selectRow({
         label: 'Wait before Continue',
@@ -126,7 +207,9 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
         format: (minutes) => `${minutes} min`,
         onChange: (value) => change({ setting: 'passMinutes', value }),
       }),
-    );
+      h('h2', {}, 'Backup'),
+      full ? backupSection() : backupLink(),
+    ];
   }
 
   function selectRow(options: {
@@ -139,7 +222,7 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
   }) {
     const select = h(
       'select',
-      { 'data-focus': options.key },
+      { id: options.key, 'data-focus': options.key },
       ...options.options.map((value) =>
         h(
           'option',
@@ -153,7 +236,8 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
     return h(
       'div',
       { class: 'row' },
-      h('label', { class: 'label' }, h('strong', {}, options.label), select),
+      h('label', { class: 'name', for: options.key }, options.label),
+      select,
       pending &&
         pendingLine(
           `Changes to ${options.format(pending.change.value as number)} on ${when.format(pending.effectiveAt)}.`,
@@ -187,9 +271,8 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
     });
 
     return h(
-      'section',
-      {},
-      h('h2', {}, 'Backup'),
+      'div',
+      { class: 'backup' },
       h(
         'p',
         { class: 'hint' },
@@ -200,10 +283,10 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
     );
   }
 
-  function footer() {
-    const link = h('button', { type: 'button', class: 'link' }, 'Backup and import');
+  function backupLink() {
+    const link = h('button', { type: 'button', class: 'link' }, 'Export or import settings');
     link.addEventListener('click', () => browser.runtime.openOptionsPage());
-    return h('footer', {}, link);
+    return h('p', { class: 'backup' }, link);
   }
 
   render();

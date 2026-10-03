@@ -130,6 +130,7 @@ test('settings delay loosening and apply tightening right away', async ({ page, 
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page.getByText(/Turns Off on/)).toHaveCount(0);
 
+  await page.getByRole('tab', { name: 'General' }).click();
   const wait = page.getByLabel('Wait before Continue');
   await expect(wait).toHaveValue('15');
   await wait.selectOption('30');
