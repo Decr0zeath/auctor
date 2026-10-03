@@ -25,7 +25,10 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | `youtube.recommendations` | `remove` | `remove`, `off` | The "Up next" sidebar and end screens on video pages |
 | `facebook.feed` | `remove` | `remove`, `off` | The feed on the home page. The Feeds page (All, Favorites, Friends, Groups, Pages), which only shows sources you follow, stays. |
 | `facebook.stories` | `remove` | `remove`, `friction`, `off` | The stories row (called My Day in some regions) on the home page, and the stories viewer. Making your own story (`/stories/create/`) opens normally. |
-| `facebook.reels` | `friction` | `friction`, `off` | The Reels player, and the old Video tab (`/watch`), which now redirects to Reels. A link to a specific video opens normally. |
+| `facebook.reels` | `remove` | `remove`, `friction`, `off` | The Reels tab in the top bar (the Video tab in older layouts), and the Reels player, including the old Video page (`/watch`), which now redirects to Reels. A link to a specific video opens normally. |
+| `facebook.marketplace` | `remove` | `remove`, `off` | The Marketplace tab in the top bar. Marketplace itself still opens from search and links. |
+| `facebook.groups` | `remove` | `remove`, `off` | The Groups tab in the top bar. Groups themselves still open from search and links. |
+| `facebook.gaming` | `remove` | `remove`, `off` | The Gaming tab in the top bar |
 
 ## The prompt
 
