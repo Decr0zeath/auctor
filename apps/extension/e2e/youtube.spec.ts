@@ -2,8 +2,8 @@ import type { Page } from '@playwright/test';
 import { expect, test } from './fixtures';
 
 const YOUTUBE = 'https://www.youtube.com';
-/** The default wait before Continue unlocks, plus some slack. */
-const WAIT = 20_000;
+/** The default wait before Continue unlocks, 2 minutes, plus some slack. */
+const WAIT = 125_000;
 
 /** Finds a Short in search results. Its shelf is hidden, but the links are still in the page. */
 async function findShortId(page: Page): Promise<string> {
@@ -52,6 +52,7 @@ test('replaces the home feed with shortcuts when set to Remove', async ({ page, 
 });
 
 test('shows a removed home feed only after the prompt', async ({ page, extensionId }) => {
+  test.setTimeout(WAIT + 60_000);
   await removeHomeFeed(page, extensionId);
   await page.goto(`${YOUTUBE}/`);
   const panel = page.locator('auctor-panel');
@@ -107,7 +108,7 @@ test('asks before opening a Short, and Go back returns', async ({ page }) => {
 
   const gate = page.locator('auctor-gate');
   await expect(gate.getByRole('heading')).toHaveText('Why are you opening YouTube Shorts?');
-  await expect(gate.getByRole('button', { name: 'Continue in 15…' })).toBeDisabled();
+  await expect(gate.getByRole('button', { name: 'Continue in 2:00…' })).toBeDisabled();
   await expect(gate.getByRole('button', { name: 'Go back' })).toBeFocused();
 
   await gate.getByRole('button', { name: 'Go back' }).click();
@@ -116,6 +117,7 @@ test('asks before opening a Short, and Go back returns', async ({ page }) => {
 });
 
 test('opens a Short after the wait', async ({ page }) => {
+  test.setTimeout(WAIT + 60_000);
   await openShortFromChannel(page);
 
   const gate = page.locator('auctor-gate');
@@ -154,12 +156,12 @@ test('settings delay loosening and apply tightening right away', async ({ page, 
 
   await page.getByRole('tab', { name: 'General' }).click();
   const wait = page.getByLabel('Wait before Continue');
-  await expect(wait).toHaveValue('15');
-  await wait.selectOption('30');
-  await expect(wait).toHaveValue('30');
+  await expect(wait).toHaveValue('120');
+  await wait.selectOption('300');
+  await expect(wait).toHaveValue('300');
   await expect(page.getByText(/Changes to/)).toHaveCount(0);
 
-  await wait.selectOption('3');
-  await expect(page.getByText(/Changes to 3 seconds on/)).toBeVisible();
-  await expect(wait).toHaveValue('30');
+  await wait.selectOption('180');
+  await expect(page.getByText(/Changes to 3 min on/)).toBeVisible();
+  await expect(wait).toHaveValue('300');
 });
