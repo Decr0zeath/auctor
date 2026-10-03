@@ -108,7 +108,8 @@ describe('Facebook', () => {
       '/marketplace/',
     ]) {
       const plan = planPage(facebook, input(path));
-      // Only the top bar's tabs, which are removed on every page.
+      // Only the top bar's search bar and tabs, which are removed on every page. The side
+      // panels stay too.
       const hidden = plan.hide.filter((selector) => !selector.startsWith('[role="banner"]'));
       expect(hidden, path).toEqual([]);
       expect(plan.replacements, path).toEqual([]);
@@ -117,13 +118,14 @@ describe('Facebook', () => {
 
   const tab = (path: string) => `[role="banner"] [role="navigation"] li:has(a[href^="${path}"])`;
 
-  it('removes every top bar tab but Home, on every page', () => {
+  it('removes the search bar and every top bar tab but Home, on every page', () => {
     for (const path of ['/', '/groups/feed/', '/marketplace/', '/profile.php?id=4']) {
       const { hide } = planPage(facebook, input(path));
       for (const href of ['/reel', '/marketplace', '/groups', '/gaming']) {
         expect(hide, `${path} ${href}`).toContain(tab(href));
       }
       expect(hide, path).not.toContain(tab('/'));
+      expect(hide, path).toContain('[role="banner"] label:has(input[type="search"])');
     }
   });
 
@@ -133,6 +135,86 @@ describe('Facebook', () => {
     expect(hide).not.toContain(tab('/groups'));
     expect(hide).not.toContain(tab('/reel'));
     expect(hide).toContain(tab('/marketplace'));
+  });
+
+  describe('the home page', () => {
+    // Cut down to its structure on the live site on 2026-10-03.
+    const page = `
+      <div role="banner">
+        <label><input type="search" aria-label="Search Facebook"></label>
+        <div role="navigation"><ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/groups/">Groups tab</a></li>
+        </ul></div>
+      </div>
+      <div>
+        <div role="navigation"><div>
+          <ul>
+            <li><a href="https://www.facebook.com/friends/">Friends</a></li>
+            <li><a href="https://www.facebook.com/groups/?ref=bookmarks">Groups</a></li>
+            <li><a href="https://www.facebook.com/reel/?s=tab">Reels</a></li>
+            <li><a href="https://www.facebook.com/marketplace/?ref=bookmark">Marketplace</a></li>
+            <li><a href="https://www.facebook.com/gaming/play/">Play games</a></li>
+          </ul>
+          <div>
+            <div><span><h3>Your shortcuts</h3></span></div>
+            <ul><li><a href="https://www.facebook.com/groups/123/">A group</a></li></ul>
+          </div>
+        </div></div>
+        <div role="main"></div>
+        <div role="complementary"><div>
+          <div>
+            <div><h3>Sponsored</h3></div>
+            <div><a attributionsrc href="https://l.facebook.com/l.php?u=x">An ad</a></div>
+          </div>
+          <div data-visualcompletion="ignore-dynamic">
+            <div><h3>Contacts</h3></div>
+            <ul><li><a href="/messages/t/1/">A friend</a></li></ul>
+          </div>
+          <div data-visualcompletion="ignore-dynamic">
+            <div><h3>Group chats</h3></div>
+            <ul><li><div role="button">A group chat</div></li></ul>
+          </div>
+        </div></div>
+      </div>`;
+
+    /** What's left showing on the home page with the given modes. */
+    function visible(modes: Partial<Record<SurfaceId, Mode>> = {}): string[] {
+      document.body.innerHTML = page;
+      const { hide } = planPage(facebook, input('/', modes));
+      return [...document.querySelectorAll('a, h3, input, [role="button"]')]
+        .filter((element) => !hide.some((selector) => element.closest(selector)))
+        .map((element) => element.getAttribute('aria-label') ?? element.textContent);
+    }
+
+    it('is cut down to Home by default', () => {
+      expect(visible()).toEqual(['Home']);
+    });
+
+    it('keeps the search bar when it is off', () => {
+      expect(visible({ 'facebook.search': 'off' })).toEqual(['Search Facebook', 'Home']);
+    });
+
+    it('keeps the sidebar, without the removed links, when it is off', () => {
+      // Shortcuts to single groups stay, though the Groups link goes.
+      expect(visible({ 'facebook.sidebar': 'off' })).toEqual([
+        'Home',
+        'Friends',
+        'Your shortcuts',
+        'A group',
+      ]);
+    });
+
+    it('removes the ads and the chat lists separately', () => {
+      expect(visible({ 'facebook.sponsored': 'off' })).toEqual(['Home', 'Sponsored', 'An ad']);
+      expect(visible({ 'facebook.contacts': 'off' })).toEqual([
+        'Home',
+        'Contacts',
+        'A friend',
+        'Group chats',
+        'A group chat',
+      ]);
+    });
   });
 
   it('removes the stories row on the home page', () => {
