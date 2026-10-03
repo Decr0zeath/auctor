@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Extension build output
+.output/
+.wxt/
+stats.html
+
+# Tests
+coverage/
+playwright-report/
+test-results/
+
+# Android (phase 2)
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+
+# Environment and OS
+.env
+.env.*
+.DS_Store
+Thumbs.db

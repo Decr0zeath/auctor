@@ -1,0 +1,14 @@
+{
+  "name": "auctor",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @auctor/extension dev",
+    "build": "pnpm --filter @auctor/extension build",
+    "check": "pnpm --filter @auctor/extension check"
+  }
+}
