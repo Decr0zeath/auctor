@@ -42,10 +42,37 @@ export interface Redirect {
   to: string;
 }
 
+/** An attribute value swapped for another, such as one image for another. */
+export interface Rewrite {
+  /** CSS selector for the elements to rewrite. */
+  selector: string;
+  attribute: string;
+  /** A regular expression source, tested against the value. Values it doesn't match stay. */
+  from: string;
+  /** The new value. `$1`, `$2`, … insert the pattern's capture groups. */
+  to: string;
+  /**
+   * For images: if the new one loads narrower than this many pixels, the original comes back. A
+   * missing image can still load, as a placeholder.
+   */
+  minWidth?: number;
+}
+
 /** How one surface is detected and handled in the browser. Which parts apply depends on the mode. */
 export interface SurfaceRules {
   /** `remove`: hide these elements. */
   hide?: HideRule[];
+  /** `remove`: extra CSS for what hiding leaves behind, such as the space a removed menu took. */
+  css?: string;
+  /** `remove`: rewrite these attributes, now and whenever the page sets them again. */
+  rewrite?: Rewrite[];
+  /** `remove`: pause media matching these selectors whenever it starts playing. */
+  pause?: string[];
+  /**
+   * `remove`: click switches matching these selectors whenever they appear, to turn them off.
+   * Match only the "on" state, such as `[aria-checked="true"]`.
+   */
+  switchOff?: string[];
   /** `remove`: show this panel where the hidden content was. */
   replacement?: Replacement;
   /** `remove` and `friction`: entering a matching page shows the friction prompt. */

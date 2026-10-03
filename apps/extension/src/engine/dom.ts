@@ -28,16 +28,20 @@ export function shadowHost(name: string, css: string): { host: HTMLElement; root
   return { host, root };
 }
 
-/** Keeps a stylesheet that hides the given selectors, one rule each so a bad selector can't break the rest. */
+/**
+ * Keeps a stylesheet that hides the given selectors, one rule each so a bad selector can't break
+ * the rest, followed by any extra CSS.
+ */
 export function createHider() {
   const style = document.createElement('style');
   style.dataset.auctor = 'hide';
 
   return {
-    set(selectors: string[]) {
-      const css = selectors
-        .map((selector) => `${selector} { display: none !important; }`)
-        .join('\n');
+    set(selectors: string[], extra: string[] = []) {
+      const css = [
+        ...selectors.map((selector) => `${selector} { display: none !important; }`),
+        ...extra,
+      ].join('\n');
       if (style.textContent !== css) style.textContent = css;
       // At document_start there's no <head> yet; <html> works just as well.
       if (!style.isConnected) (document.head ?? document.documentElement).append(style);

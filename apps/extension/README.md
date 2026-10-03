@@ -44,6 +44,8 @@ Prefer rules in this order, because the later ones break more often when a site 
 2. **ARIA roles and stable IDs** in selectors.
 3. **Class and element names**: last resort, and expect to maintain them.
 
+Besides hiding (`hide`, with `css` for what hiding leaves behind), a surface's rules can put a panel in its place (`replacement`), rewrite attributes such as an image's address (`rewrite`), pause media (`pause`), and switch toggles off (`switchOff`). `src/sites/types.ts` describes each.
+
 ## The post
 
 The post that replaces a removed feed ([how it works](../../docs/surfaces.md#the-post)) is a site rule away: `post: true` on a surface's `replacement`. Its quotes, its paintings, and the wording of its way back to the feed (`GIVE_IN`) are listed in `src/catalog/posts.ts`; the files ship in `public/`:

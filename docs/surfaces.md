@@ -22,7 +22,14 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 |---|---|---|---|
 | `youtube.home-feed` | `off` | `remove`, `off` | The recommendation grid on the home page. Off by default, because the home feed is where many people pick background listening. |
 | `youtube.shorts` | `remove` | `remove`, `friction`, `off` | Shorts in the menu (and the mini menu on narrower windows), Shorts shelves, and the Shorts player. A channel's own Shorts tab stays. A shared Short opens as a normal video, unless the mode is `off`. |
-| `youtube.recommendations` | `remove` | `remove`, `off` | The "Up next" sidebar and end screens on video pages |
+| `youtube.recommendations` | `remove` | `remove`, `off` | The "Up next" sidebar and end screens on video pages, and autoplay, which would play what Up next showed. Autoplay is switched off in the player, which remembers it, so it stays off until switched back on there. |
+| `youtube.search-shelves` | `off` | `remove`, `off` | Shelves of other videos in search results, such as "Channels new to you", "Popular in" a place, and a searched channel's latest videos. The channel's own card stays. |
+| `youtube.previews` | `off` | `remove`, `off` | Videos that start playing when you point at their thumbnail |
+| `youtube.thumbnails` | `off` | `remove`, `off` | The thumbnail a channel chose, swapped for a frame from the middle of the video. Streams that are live or yet to start have no frames, so they keep theirs. |
+| `youtube.counts` | `off` | `remove`, `off` | View, like, and subscriber counts on cards, channel pages, search results, and video pages. The number of a channel's videos stays. |
+| `youtube.comments` | `off` | `remove`, `off` | Comments under videos, and the chat beside live streams |
+| `youtube.notifications` | `off` | `remove`, `off` | The bell in the top bar, and its count |
+| `youtube.menu` | `off` | `remove`, `off` | The menu on the left, the mini menu on narrower windows, and the ☰ button. Subscriptions, History, and Watch later still open by their address (`/feed/subscriptions`, `/feed/history`, `/playlist?list=WL`). |
 | `facebook.feed` | `remove` | `remove`, `off` | The feed on the home page, which becomes the [post](#the-post). The Feeds page (All, Favorites, Friends, Groups, Pages), which only shows sources you follow, stays. |
 | `facebook.composer` | `remove` | `remove`, `off` | The "What's on your mind?" box on the home page. Posting still works from your profile. |
 | `facebook.stories` | `remove` | `remove`, `friction`, `off` | The stories row (called My Day in some regions) on the home page, and the stories viewer. Making your own story (`/stories/create/`) opens normally. |
@@ -34,6 +41,8 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | `facebook.sidebar` | `remove` | `remove`, `off` | The home page's left sidebar: the menu and your shortcuts. The sidebar keeps its width, so the main column stays centered. |
 | `facebook.sponsored` | `remove` | `remove`, `off` | The ads in the home page's right panel |
 | `facebook.contacts` | `remove` | `remove`, `off` | The Contacts and Group chats lists in the home page's right panel. Chats still open from Messenger. |
+
+YouTube's search shelves, hover previews, thumbnails, counts, comments, notifications, and menu are optional limits, off by default, for people who want YouTube with fewer pulls in it.
 
 ## The post
 

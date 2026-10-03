@@ -23,14 +23,22 @@ async function openShortFromChannel(page: Page) {
   await page.locator('a[href^="/shorts/"]').first().click();
 }
 
-/** Turns on removal for the home feed. Tightening applies right away. */
-async function removeHomeFeed(page: Page, extensionId: string) {
+/** Turns on removal for the settings with these labels. Tightening applies right away. */
+async function turnOn(page: Page, extensionId: string, ...labels: string[]) {
   await page.goto(`chrome-extension://${extensionId}/options.html`);
-  const remove = page
-    .getByRole('group', { name: 'Home feed' })
-    .getByRole('button', { name: 'Remove' });
-  await remove.click();
-  await expect(remove).toHaveAttribute('aria-pressed', 'true');
+  for (const label of labels) {
+    const remove = page.getByRole('group', { name: label }).getByRole('button', { name: 'Remove' });
+    await remove.click();
+    await expect(remove).toHaveAttribute('aria-pressed', 'true');
+  }
+}
+
+const removeHomeFeed = (page: Page, extensionId: string) => turnOn(page, extensionId, 'Home feed');
+
+/** Opens a video page and waits for its player. */
+async function openVideo(page: Page) {
+  await page.goto(`${YOUTUBE}/watch?v=jNQXAC9IVRw`);
+  await expect(page.locator('#movie_player')).toBeAttached();
 }
 
 test('leaves the home feed alone by default', async ({ page }) => {
@@ -140,6 +148,86 @@ test('hides Up next on video pages', async ({ page }) => {
   for (const related of await page.locator('ytd-watch-flexy #related').all()) {
     await expect(related).toBeHidden();
   }
+});
+
+test('switches autoplay off along with Up next', async ({ page }) => {
+  await openVideo(page);
+  await expect(page.locator('.ytp-autonav-toggle-button')).toHaveAttribute('aria-checked', 'false');
+  await expect(
+    page.locator('button[data-tooltip-target-id="ytp-autonav-toggle-button"]'),
+  ).toBeHidden();
+});
+
+test('leaves the optional limits off by default', async ({ page }) => {
+  await openVideo(page);
+  await expect(page.locator('ytd-masthead #guide-button')).toBeVisible();
+  await expect(page.locator('ytd-video-owner-renderer #owner-sub-count')).toBeVisible();
+});
+
+test('hides shelves of other videos in search when asked', async ({ page, extensionId }) => {
+  await turnOn(page, extensionId, 'Search shelves');
+  // A channel's name brings up its latest videos as a shelf.
+  await page.goto(`${YOUTUBE}/results?search_query=mrbeast`);
+  await expect(page.locator('ytd-channel-renderer').first()).toBeVisible();
+  const shelves = page.locator('ytd-search ytd-shelf-renderer');
+  await expect(shelves.first()).toBeAttached();
+  for (const shelf of await shelves.all()) await expect(shelf).toBeHidden();
+});
+
+test('stops hover previews when asked', async ({ page, extensionId }) => {
+  await turnOn(page, extensionId, 'Hover previews');
+  await page.goto(`${YOUTUBE}/results?search_query=how+to+cook+rice`);
+  await page.locator('ytd-video-renderer a#thumbnail').first().hover();
+  const preview = page.locator('#video-preview video');
+  await expect(preview).toBeAttached();
+  await page.waitForTimeout(3000);
+  expect(await preview.evaluate((video: HTMLVideoElement) => video.paused)).toBe(true);
+  await expect(page.locator('#video-preview')).toBeHidden();
+});
+
+test('swaps thumbnails for frames from the video when asked', async ({ page, extensionId }) => {
+  await turnOn(page, extensionId, 'Thumbnails');
+  await page.goto(`${YOUTUBE}/results?search_query=minecraft`);
+  const thumbnails = page.locator('ytd-video-renderer a#thumbnail img[src*="/vi/"]');
+  await expect(thumbnails.first()).toHaveAttribute('src', /\/hq2\.jpg$/);
+  const chosen = await thumbnails.evaluateAll(
+    (images) =>
+      images.filter((image) => /\/(hq720|hqdefault)[^/]*$/.test(image.getAttribute('src')!)).length,
+  );
+  expect(chosen).toBe(0);
+});
+
+test('hides counts when asked', async ({ page, extensionId }) => {
+  await turnOn(page, extensionId, 'Counts');
+  await page.goto(`${YOUTUBE}/results?search_query=minecraft`);
+  // What shows, not what's hidden in the page.
+  const shown = { useInnerText: true };
+  const line = page.locator('ytd-video-renderer #metadata-line').first();
+  await expect(line).toHaveText(/ago/, shown);
+  await expect(line).not.toHaveText(/\d\s*[KMB]?\s*views|\d[KMB]\b/, shown);
+
+  await openVideo(page);
+  await expect(page.locator('ytd-video-owner-renderer')).toBeVisible();
+  await expect(page.locator('ytd-video-owner-renderer #owner-sub-count')).toBeHidden();
+  await expect(page.locator('ytd-watch-info-text')).toHaveText(/ago/, shown);
+  await expect(page.locator('ytd-watch-info-text')).not.toHaveText(/views/, shown);
+  await expect(page.locator('ytd-watch-metadata like-button-view-model')).toHaveText('', shown);
+});
+
+test('hides comments when asked', async ({ page, extensionId }) => {
+  await turnOn(page, extensionId, 'Comments');
+  await openVideo(page);
+  await page.mouse.wheel(0, 1500);
+  await expect(page.locator('ytd-watch-flexy #comments')).toBeAttached();
+  await expect(page.locator('ytd-watch-flexy #comments')).toBeHidden();
+});
+
+test('removes the side menu and the room it took when asked', async ({ page, extensionId }) => {
+  await turnOn(page, extensionId, 'Side menu');
+  await page.goto(`${YOUTUBE}/`);
+  await expect(page.locator('tp-yt-app-drawer#guide')).toBeHidden();
+  await expect(page.locator('ytd-masthead #guide-button')).toBeHidden();
+  await expect(page.locator('ytd-page-manager')).toHaveCSS('margin-left', '0px');
 });
 
 test('settings delay loosening and apply tightening right away', async ({ page, extensionId }) => {

@@ -12,6 +12,7 @@ import type { Site } from '@/sites/types';
 import { grantPass, passesItem, stateItem } from '@/storage';
 import type { ContentScriptContext } from 'wxt/utils/content-script-context';
 import { createHider } from './dom';
+import { createPauser, createRewriter, createSwitcher } from './effects';
 import { createGate } from './gate';
 import { planPage, redirectFor } from './plan';
 import { createReplacements } from './replacement';
@@ -39,6 +40,9 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
   }
 
   const hider = createHider();
+  const rewriter = createRewriter();
+  const pauser = createPauser();
+  const switcher = createSwitcher();
   const gate = createGate(ctx);
   const replacements = createReplacements((id) => {
     requested = id;
@@ -81,7 +85,10 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
       passedHere = true;
     }
 
-    hider.set(plan.hide);
+    hider.set(plan.hide, plan.css);
+    rewriter.set(plan.rewrite);
+    pauser.set(plan.pause);
+    switcher.set(plan.switchOff);
     replacements.set(plan.replacements, new Date(now));
 
     if (requested && !plan.replacements.some((item) => item.surface === requested)) {
@@ -176,6 +183,9 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
     unwatchState();
     unwatchPasses();
     hider.remove();
+    rewriter.remove();
+    pauser.remove();
+    switcher.remove();
     replacements.remove();
     gate.close();
   });
