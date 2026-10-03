@@ -19,10 +19,10 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 | License | GPL-3.0 ([why](#license)) |
 | Repo | One monorepo for both apps: `github.com/Decr0zeath/auctor`, private for now |
 | Logo | Hervé Bazin's **authority point** ([concept](#logo-the-authority-point)) |
-| The pause | A 15-second wait, then a 5-minute pass. Both are adjustable, and loosening either waits 24 hours. Giving in from the daily post waits a flat **2 minutes**, which no setting changes. |
+| The pause | A **2-minute** wait, then a 5-minute pass. Both are adjustable, the wait from 2 to 10 minutes, and loosening either waits 24 hours. Giving in from the post waits just as long. |
 | YouTube home feed | **Left on by default**, because it's where I pick background listening while working (lectures, talks, music). Removing it stays available as a setting. |
-| Facebook navigation | **Only Home by default.** The top bar's search bar and its Reels, Marketplace, Groups, and Gaming tabs are removed. So are the home page's post composer, left sidebar, and right panel (ads, Contacts, Group chats). Each is its own setting. With the defaults, nothing is left to click under the top bar but the daily post's way back to the feed; to search, turn the search bar back on. |
-| The daily post | **The Facebook feed becomes one post a day:** a public-domain painting or statue (knights, emperors, and heroes of myth and scripture such as Thor, Hercules, and Moses) with a quote from the Stoics or the Bible (King James Version) about time, discipline, and putting things off. Under it, the only thing to click is a way back to the feed in guilt-tripping words ("Succumb to temptation", "Abandon the vigil"). It opens the pause, which then says rather than asks: a statement such as "You are meant for more, not for this.", a few lines worded by the [research](#wording), and a 2-minute wait. It all stays the same all day, because a post that changed on every refresh would be a feed of its own. YouTube's home feed gets it later. |
+| Facebook navigation | **Only Home by default.** The top bar's search bar and its Reels, Marketplace, Groups, and Gaming tabs are removed. So are the home page's post composer, left sidebar, and right panel (ads, Contacts, Group chats). Each is its own setting. With the defaults, nothing is left to click under the top bar but the post's way back to the feed; to search, turn the search bar back on. |
+| The post | **The Facebook feed becomes one post, changed every 10 minutes:** a public-domain painting or statue (knights, emperors, and heroes of myth and scripture such as Thor, Hercules, and Moses) with a quote from the Stoics or the Bible (King James Version) about time, discipline, and putting things off. Under it, the only thing to click is a way back to the feed in guilt-tripping words ("Succumb to temptation", "Abandon the vigil"). It opens the pause, which then says rather than asks: a statement such as "You are meant for more, not for this.", a few lines worded by the [research](#wording), and the usual wait. Each new post brings a different painting and a different quote, but refreshing never brings one sooner, because a post that changed on every refresh would be a feed of its own. YouTube's home feed gets it later. |
 
 ## Research
 
@@ -39,7 +39,7 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 
 ### Wording
 
-What the prompt says when you give in from the daily post. In Grüning et al. the option to back out did the most and the wait helped, so the words support those rather than carry the prompt alone.
+What the prompt says when you give in from the post. In Grüning et al. the option to back out did the most and the wait helped, so the words support those rather than carry the prompt alone.
 
 | Study | Finding | How the prompt uses it |
 |---|---|---|
@@ -72,7 +72,7 @@ A **surface** is one brain-rot entry point in a site or app, with a stable ID sh
 | `youtube.home-feed` | Off | When set to Remove: hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
 | `youtube.shorts` | Remove the tab and shelves, friction to enter | Hide Shorts in the menu, and Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts player (`/shorts/*`), which still opens from links and a channel's Shorts tab. | Detect the Shorts player and show friction |
 | `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
-| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. In its place, the [daily post](docs/surfaces.md#the-daily-post). The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. In its place, the [post](docs/surfaces.md#the-post). The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
 | `facebook.composer` | Remove | Hide the "What's on your mind?" box on `/`. Posting still works from your profile. | Later |
 | `facebook.stories` | Remove the row, friction to enter | Hide the stories row (My Day) on `/`. Friction on the stories viewer (`/stories/*`), which opens from the row or a profile picture. Making your own story (`/stories/create/`) stays open. | Detect the stories viewer and show friction |
 | `facebook.reels` | Remove the links, friction to enter | Hide Reels in the top bar and the left sidebar. Friction on `/reel/*`, `/reels/*`, and the old Video tab (`/watch`), which Facebook now redirects to Reels. | Detect the Reels viewer |

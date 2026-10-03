@@ -1,9 +1,9 @@
 /**
  * Runs a site's rules on the current page and keeps them applied as the user navigates,
- * changes settings, or a pass runs out.
+ * changes settings, a pass runs out, or the next post is up.
  */
 import { copy } from '@/catalog/copy';
-import { GIVE_IN_WAIT_SECONDS, postFor } from '@/catalog/posts';
+import { nextPostAt, postFor } from '@/catalog/posts';
 import { modeOf, nextDueAt, resolveDue } from '@/catalog/settings';
 import type { Settings } from '@/catalog/settings';
 import { surface } from '@/catalog/surfaces';
@@ -82,7 +82,7 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
     }
 
     hider.set(plan.hide);
-    replacements.set(plan.replacements);
+    replacements.set(plan.replacements, new Date(now));
 
     if (requested && !plan.replacements.some((item) => item.surface === requested)) {
       requested = null;
@@ -91,12 +91,17 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
       (item) => item.surface === requested && item.replacement.post,
     );
     const promptFor = plan.prompt ? plan.gated : requested;
-    if (promptFor && !plan.prompt && fromPost) showGiveIn(promptFor, settings);
+    if (promptFor && !plan.prompt && fromPost) showGiveIn(promptFor, settings, now);
     else if (promptFor) showPrompt(promptFor, settings, plan.prompt && passedHere);
     else gate.close();
 
     clearTimeout(timer);
-    const next = Math.min(plan.passEndsAt ?? Infinity, nextDueAt(current) ?? Infinity);
+    const showsPost = plan.replacements.some((item) => item.replacement.post);
+    const next = Math.min(
+      plan.passEndsAt ?? Infinity,
+      nextDueAt(current) ?? Infinity,
+      showsPost ? nextPostAt(new Date(now)) : Infinity,
+    );
     if (next !== Infinity) {
       timer = ctx.setTimeout(evaluate, Math.min(Math.max(next - now, 0) + 100, MAX_DELAY));
     }
@@ -115,15 +120,15 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
     });
   }
 
-  /** Giving in from the daily post: the day's words, and a fixed wait that no setting shortens. */
-  function showGiveIn(id: SurfaceId, settings: Settings) {
-    const { title, message } = postFor(new Date()).giveIn;
+  /** Giving in from the post: the post's words, with the usual wait. */
+  function showGiveIn(id: SurfaceId, settings: Settings, now: number) {
+    const { title, message } = postFor(new Date(now)).giveIn;
     gate.show({
       key: `${id}:give-in`,
       title,
       message,
       variant: 'post',
-      waitSeconds: GIVE_IN_WAIT_SECONDS,
+      waitSeconds: settings.waitSeconds,
       passMinutes: settings.passMinutes,
       onGoBack: () => goBack(id),
       onContinue: () => void proceed(id, settings.passMinutes),

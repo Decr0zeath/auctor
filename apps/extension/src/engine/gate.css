@@ -65,7 +65,7 @@ h1 {
   color: var(--muted);
 }
 
-/* Opened from the daily post: the title is set like the post's quote, and there's room for a
+/* Opened from the post: the title is set like the post's quote, and there's room for a
    longer message. The post declared its fonts on the page already. */
 .post {
   width: min(480px, 100%);

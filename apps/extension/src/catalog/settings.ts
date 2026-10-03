@@ -8,7 +8,8 @@ import type { Mode, SurfaceId } from './surfaces';
 
 export const WEAKEN_DELAY_MS = 24 * 60 * 60 * 1000;
 
-export const WAIT_SECONDS_OPTIONS = [3, 5, 10, 15, 30] as const;
+/** In seconds, from 2 minutes up. */
+export const WAIT_SECONDS_OPTIONS = [120, 180, 300, 600] as const;
 export const PASS_MINUTES_OPTIONS = [1, 3, 5, 10, 15, 30] as const;
 
 export interface Settings {
@@ -20,7 +21,7 @@ export interface Settings {
   passMinutes: number;
 }
 
-export const DEFAULT_SETTINGS: Settings = { surfaces: {}, waitSeconds: 15, passMinutes: 5 };
+export const DEFAULT_SETTINGS: Settings = { surfaces: {}, waitSeconds: 120, passMinutes: 5 };
 
 export type Change =
   | { setting: 'mode'; surface: string; value: Mode }
@@ -95,6 +96,21 @@ export function requestChange(state: State, change: Change, now: number): State 
   return {
     settings: state.settings,
     pending: [...others, { change, effectiveAt: now + WEAKEN_DELAY_MS }],
+  };
+}
+
+/**
+ * Brings a state saved under older rules up to the current ones. The wait used to start at 3
+ * seconds: a wait shorter than the shortest option is raised to it at once, since a longer wait
+ * only tightens protection, and a pending change to a wait that short is dropped.
+ */
+export function upgradeState(state: State): State {
+  const shortest = WAIT_SECONDS_OPTIONS[0];
+  return {
+    settings: { ...state.settings, waitSeconds: Math.max(state.settings.waitSeconds, shortest) },
+    pending: state.pending.filter(
+      ({ change }) => change.setting !== 'waitSeconds' || change.value >= shortest,
+    ),
   };
 }
 

@@ -25,7 +25,7 @@ export interface Replacement {
   color?: string;
   on?: UrlPattern;
   /**
-   * Show the daily post (a quote over a painting) in place of the panel's title. Its button
+   * Show the post (a quote over a painting) in place of the panel's title. Its button
    * takes the post's wording for giving in, with `showAnyway` as its tooltip.
    */
   post?: boolean;

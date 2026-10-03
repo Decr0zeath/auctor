@@ -2,7 +2,7 @@ import { defineConfig } from 'wxt';
 import { SITE_RULES } from './src/sites';
 import { surfaceRules } from './src/sites/types';
 
-// Sites that show the daily post load its paintings and fonts from the extension.
+// Sites that show the post load its paintings and fonts from the extension.
 const postMatches = SITE_RULES.filter((site) =>
   surfaceRules(site).some(([, rules]) => rules.replacement?.post),
 ).flatMap((site) => site.matches);

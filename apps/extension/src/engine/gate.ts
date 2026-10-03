@@ -1,6 +1,6 @@
 /**
  * The friction prompt: a full-screen pause that asks why you're opening a surface, or, when you
- * give in from the daily post, tells you something about it. "Go back" is the main action, and
+ * give in from the post, tells you something about it. "Go back" is the main action, and
  * "Continue" unlocks after a wait.
  */
 import { copy } from '@/catalog/copy';
@@ -14,7 +14,7 @@ export interface Prompt {
   title: string;
   /** Text under the title. */
   message?: string;
-  /** `post` sets the prompt like the daily post it was opened from, with room for its message. */
+  /** `post` sets the prompt like the post it was opened from, with room for its message. */
   variant?: 'post';
   waitSeconds: number;
   passMinutes: number;
