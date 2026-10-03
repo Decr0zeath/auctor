@@ -5,8 +5,9 @@
  * a feed of its own.
  *
  * Every quote is checked word for word against a public-domain translation, and every painting
- * is in the public domain. The images themselves live with each app (`public/posts/<id>.webp`
- * in the extension), cropped to 4:5 at 960×1200.
+ * is in the public domain. So is the one statue, Marcus Aurelius, whose photographer released the
+ * photo under CC0. The images themselves live with each app (`public/posts/<id>.webp` in the
+ * extension), cropped to 4:5 at 960×1200.
  */
 
 export interface Quote {
@@ -254,7 +255,15 @@ export const QUOTES: readonly Quote[] = [
 
 const commons = (file: string) => `https://commons.wikimedia.org/wiki/File:${file}`;
 
+/** Mounted and standing figures take turns, so a horse seldom shows two days in a row. */
 export const PAINTINGS: readonly Painting[] = [
+  {
+    id: 'marcus-aurelius',
+    title: 'Equestrian Statue of Marcus Aurelius',
+    artist: 'Unknown Roman sculptor',
+    year: 'c. 175 AD',
+    url: commons('Gilded_bronze_equestrian_statue_of_Marcus_Aurelius,_Musei_Capitolini.jpg'),
+  },
   {
     id: 'golden-helmet',
     title: 'The Man with the Golden Helmet',
@@ -263,18 +272,20 @@ export const PAINTINGS: readonly Painting[] = [
     url: commons('Rembrandt_(circle)_-_The_Man_with_the_Golden_Helmet_-_Google_Art_Project.jpg'),
   },
   {
-    id: 'vigil',
-    title: 'The Vigil',
-    artist: 'John Pettie',
-    year: '1884',
-    url: commons('John_Pettie_(1839-1893)_-_A_knight%27s_vigil_(1884).jpg'),
+    id: 'charging-chasseur',
+    title: 'The Charging Chasseur',
+    artist: 'Théodore Géricault',
+    year: '1812',
+    url: commons('GericaultHorseman.jpg'),
   },
   {
-    id: 'saint-paul',
-    title: 'Saint Paul in Prison',
-    artist: 'Rembrandt',
-    year: '1627',
-    url: commons('1627_Rembrandt_Paulus_im_Gef%C3%A4ngnis_Staatsgalerie_Stuttgart_anagoria.JPG'),
+    id: 'thor',
+    title: 'Thor’s Fight with the Giants',
+    artist: 'Mårten Eskil Winge',
+    year: '1872',
+    url: commons(
+      'M%C3%A5rten_Eskil_Winge_-_Tor%27s_Fight_with_the_Giants_-_Google_Art_Project.jpg',
+    ),
   },
   {
     id: 'crossroads',
@@ -284,18 +295,27 @@ export const PAINTINGS: readonly Painting[] = [
     url: commons('Victor_Vasnetsov_-_Knight_at_the_Crossroads_-_Google_Art_Project.jpg'),
   },
   {
-    id: 'wignacourt',
-    title: 'Portrait of Alof de Wignacourt',
-    artist: 'Caravaggio',
-    year: 'c. 1608',
-    url: commons('Portrait_of_Alof_de_Wignacourt_and_his_Page-Caravaggio_(1607-1608).jpg'),
+    id: 'horatii',
+    title: 'The Oath of the Horatii',
+    artist: 'Jacques-Louis David',
+    year: '1784',
+    url: commons('%22Oath_of_the_Horatii%22_by_Jacques-Louis_David.jpg'),
   },
   {
-    id: 'wanderer',
-    title: 'Wanderer above the Sea of Fog',
-    artist: 'Caspar David Friedrich',
-    year: 'c. 1817',
-    url: commons('Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog.jpeg'),
+    id: 'napoleon',
+    title: 'Napoleon Crossing the Alps',
+    artist: 'Jacques-Louis David',
+    year: '1801–1803',
+    url: commons(
+      'Napoleon_at_the_Great_St._Bernard_-_Jacques-Louis_David_-_Google_Cultural_Institute.jpg',
+    ),
+  },
+  {
+    id: 'moses',
+    title: 'Moses with the Ten Commandments',
+    artist: 'Rembrandt',
+    year: '1659',
+    url: commons('Rembrandt_-_Moses_with_the_Ten_Commandments_-_Google_Art_Project.jpg'),
   },
   {
     id: 'knight-death-devil',
@@ -305,11 +325,46 @@ export const PAINTINGS: readonly Painting[] = [
     url: commons('Albrecht_D%C3%BCrer,_Knight,_Death_and_Devil,_1513,_NGA_598.jpg'),
   },
   {
-    id: 'saint-jerome',
-    title: 'Saint Jerome Writing',
+    id: 'wignacourt',
+    title: 'Portrait of Alof de Wignacourt',
     artist: 'Caravaggio',
-    year: 'c. 1606',
-    url: commons('Saint_Jerome_Writing-Caravaggio_(1605-6).jpg'),
+    year: 'c. 1608',
+    url: commons('Portrait_of_Alof_de_Wignacourt_and_his_Page-Caravaggio_(1607-1608).jpg'),
+  },
+  {
+    id: 'saint-george',
+    title: 'Saint George and the Dragon',
+    artist: 'Peter Paul Rubens',
+    year: '1606–1608',
+    url: commons('Rubens_-_San_Jorge_y_el_Drag%C3%B3n_(Museo_del_Prado,_1605).jpg'),
+  },
+  {
+    id: 'hercules',
+    title: 'Hercules and Cerberus',
+    artist: 'Francisco de Zurbarán',
+    year: '1634',
+    url: commons('H%C3%A9rcules_y_el_Cancerbero,_por_Zurbar%C3%A1n.jpg'),
+  },
+  {
+    id: 'charles-v',
+    title: 'Charles V at Mühlberg',
+    artist: 'Titian',
+    year: '1548',
+    url: commons('Carlos_V_en_M%C3%BChlberg,_by_Titian,_from_Prado_in_Google_Earth.jpg'),
+  },
+  {
+    id: 'wanderer',
+    title: 'Wanderer above the Sea of Fog',
+    artist: 'Caspar David Friedrich',
+    year: 'c. 1817',
+    url: commons('Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog.jpeg'),
+  },
+  {
+    id: 'king-arthur',
+    title: 'King Arthur',
+    artist: 'Charles Ernest Butler',
+    year: '1903',
+    url: commons('Charles_Ernest_Butler_-_King_Arthur.jpg'),
   },
   {
     id: 'man-in-armour',
@@ -317,20 +372,6 @@ export const PAINTINGS: readonly Painting[] = [
     artist: 'Rembrandt',
     year: '1655',
     url: commons('Rembrandt_Man_in_Armour.jpg'),
-  },
-  {
-    id: 'daniel',
-    title: 'Daniel’s Answer to the King',
-    artist: 'Briton Rivière',
-    year: '1890',
-    url: commons('Briton_Riviere_-_Daniel%27s_Answer_to_the_King_(Manchester_Art_Gallery).jpg'),
-  },
-  {
-    id: 'polish-rider',
-    title: 'The Polish Rider',
-    artist: 'Rembrandt',
-    year: 'c. 1655',
-    url: commons('Rembrandt_-_De_Poolse_ruiter,_c.1655_(Frick_Collection).jpg'),
   },
 ];
 

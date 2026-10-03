@@ -50,7 +50,7 @@ The post that replaces a removed feed ([how it works](../../docs/surfaces.md#the
 
 | Folder | What's in it | License |
 |---|---|---|
-| `public/posts/` | One painting per entry in `PAINTINGS`, named `<id>.webp`, cropped to 4:5 at 960×1200 | Public domain; each entry links to its Wikimedia Commons page |
+| `public/posts/` | One painting per entry in `PAINTINGS`, named `<id>.webp`, cropped to 4:5 at 960×1200 | Public domain or CC0; each entry links to its Wikimedia Commons page |
 | `public/fonts/` | Cormorant Garamond (the quote) and Cinzel (who said it), Latin only | SIL Open Font License, with each font's license next to it |
 
 To add a painting, crop it to 960×1200, darken it to sit with the others if needed, save it as WebP (quality around 70), and add it to `PAINTINGS`. To add a quote, copy it word for word from a public-domain translation and name the translation in `source`. A unit test checks that every painting has its file.

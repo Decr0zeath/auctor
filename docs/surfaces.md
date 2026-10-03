@@ -42,7 +42,7 @@ Where a removed feed was, there's **one post a day**: a painting with a quote ov
 - The post, its way back, and the prompt it opens change at **local midnight** and stay the same all day. Refreshing never brings a new one, because a post that changed on every visit would be a feed of its own.
 - Quotes and paintings each go round in order, and the paintings shift one step each time the quotes start over, so in time every quote meets every painting. The same date gives the same post on every device.
 - Quotes come from the Stoics (Seneca, Marcus Aurelius, Epictetus) and the Bible (King James Version), about time, discipline, and putting things off. Each one is checked word for word against a public-domain translation.
-- Paintings are in the public domain, cropped to 4:5 at 960×1200, and ship with the app, so showing the post makes no network requests.
+- Paintings are in the public domain, as is the one statue's photo (CC0). They're cropped to 4:5 at 960×1200, and ship with the app, so showing the post makes no network requests.
 - The list is in [`apps/extension/src/catalog/posts.ts`](../apps/extension/src/catalog/posts.ts), with each quote's translation and each painting's source.
 - Shown on `facebook.feed`. YouTube's home feed gets it later.
 
