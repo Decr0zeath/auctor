@@ -10,7 +10,7 @@ From strongest to weakest:
 
 | Mode | What happens |
 |---|---|
-| `remove` | Hidden. Where the content was, a panel offers search and shortcuts, or the [daily post](#the-daily-post), plus a "show anyway" option that goes through the prompt. Entering the surface on purpose (such as the Shorts tab) still works through the prompt. |
+| `remove` | Hidden. Where the content was, a panel offers search and shortcuts, or the [daily post](#the-daily-post), plus a "show anyway" option that goes through the prompt. Entering the surface on purpose (such as a Short on a channel's Shorts tab) still works through the prompt. |
 | `friction` | Shown, but entering it opens the prompt first. |
 | `off` | Left as it is. |
 
@@ -21,7 +21,7 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | Surface ID | Default | Modes | Covers |
 |---|---|---|---|
 | `youtube.home-feed` | `off` | `remove`, `off` | The recommendation grid on the home page. Off by default, because the home feed is where many people pick background listening. |
-| `youtube.shorts` | `remove` | `remove`, `friction`, `off` | Shorts shelves, and the Shorts player. A shared Short opens as a normal video, unless the mode is `off`. |
+| `youtube.shorts` | `remove` | `remove`, `friction`, `off` | Shorts in the menu (and the mini menu on narrower windows), Shorts shelves, and the Shorts player. A channel's own Shorts tab stays. A shared Short opens as a normal video, unless the mode is `off`. |
 | `youtube.recommendations` | `remove` | `remove`, `off` | The "Up next" sidebar and end screens on video pages |
 | `facebook.feed` | `remove` | `remove`, `off` | The feed on the home page, which becomes the [daily post](#the-daily-post). The Feeds page (All, Favorites, Friends, Groups, Pages), which only shows sources you follow, stays. |
 | `facebook.composer` | `remove` | `remove`, `off` | The "What's on your mind?" box on the home page. Posting still works from your profile. |

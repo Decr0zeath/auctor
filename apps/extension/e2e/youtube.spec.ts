@@ -14,6 +14,15 @@ async function findShortId(page: Page): Promise<string> {
   return href!.split('/')[2]!.split('?')[0]!;
 }
 
+/** A channel's own Shorts tab, which stays: opening one of its Shorts is a choice. */
+const CHANNEL_SHORTS = `${YOUTUBE}/@YouTube/shorts`;
+
+/** Opens a Short in the page, the way you'd choose to now that the menu has no Shorts tab. */
+async function openShortFromChannel(page: Page) {
+  await page.goto(CHANNEL_SHORTS);
+  await page.locator('a[href^="/shorts/"]').first().click();
+}
+
 /** Turns on removal for the home feed. Tightening applies right away. */
 async function removeHomeFeed(page: Page, extensionId: string) {
   await page.goto(`chrome-extension://${extensionId}/options.html`);
@@ -78,9 +87,23 @@ test('opens a shared Short as a normal video', async ({ page }) => {
   await expect(page).toHaveURL(`${YOUTUBE}/watch?v=${id}`);
 });
 
-test('asks before opening the Shorts tab, and Go back returns', async ({ page }) => {
+test('hides the Shorts tab in the menu and the mini menu', async ({ page }) => {
   await page.goto(`${YOUTUBE}/`);
-  await page.locator('ytd-guide-entry-renderer a#endpoint[title="Shorts"]').click();
+  const entry = page.locator('ytd-guide-entry-renderer:has(> a#endpoint[title="Shorts"])');
+  await expect(entry).toBeAttached();
+  await expect(entry).toBeHidden();
+  await expect(page.locator('ytd-guide-entry-renderer a#endpoint[title="Home"]')).toBeVisible();
+
+  // Narrower windows swap the menu for the mini menu.
+  await page.setViewportSize({ width: 1000, height: 900 });
+  const mini = page.locator('ytd-mini-guide-entry-renderer:has(> a[href^="/shorts"])');
+  await expect(mini).toBeAttached();
+  await expect(mini).toBeHidden();
+  await expect(page.locator('ytd-mini-guide-entry-renderer a[title="Home"]')).toBeVisible();
+});
+
+test('asks before opening a Short, and Go back returns', async ({ page }) => {
+  await openShortFromChannel(page);
 
   const gate = page.locator('auctor-gate');
   await expect(gate.getByRole('heading')).toHaveText('Why are you opening YouTube Shorts?');
@@ -89,12 +112,11 @@ test('asks before opening the Shorts tab, and Go back returns', async ({ page })
 
   await gate.getByRole('button', { name: 'Go back' }).click();
   await expect(gate).toHaveCount(0);
-  await expect(page).toHaveURL(`${YOUTUBE}/`);
+  await expect(page).toHaveURL(CHANNEL_SHORTS);
 });
 
-test('opens the Shorts tab after the wait', async ({ page }) => {
-  await page.goto(`${YOUTUBE}/`);
-  await page.locator('ytd-guide-entry-renderer a#endpoint[title="Shorts"]').click();
+test('opens a Short after the wait', async ({ page }) => {
+  await openShortFromChannel(page);
 
   const gate = page.locator('auctor-gate');
   const proceed = gate.getByRole('button', { name: 'Continue for 5 min' });

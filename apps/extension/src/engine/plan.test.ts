@@ -78,6 +78,60 @@ describe('YouTube', () => {
     });
   });
 
+  describe('the menu', () => {
+    // Cut down to its structure on the live site on 2026-10-03, signed in: the full menu, then
+    // the mini menu that narrower windows show instead.
+    const page = `
+      <ytd-guide-renderer>
+        <ytd-guide-section-renderer><div id="items">
+          <ytd-guide-entry-renderer is-primary><a id="endpoint" title="Home" href="/">Home</a></ytd-guide-entry-renderer>
+          <ytd-guide-entry-renderer is-primary><a id="endpoint" title="Shorts">Shorts</a></ytd-guide-entry-renderer>
+          <ytd-guide-entry-renderer is-primary><a id="endpoint" title="Subscriptions" href="/feed/subscriptions">Subscriptions</a></ytd-guide-entry-renderer>
+        </div></ytd-guide-section-renderer>
+        <ytd-guide-section-renderer><div id="items">
+          <ytd-guide-entry-renderer><a id="endpoint" title="Shorts" href="/@shorts">A channel called Shorts</a></ytd-guide-entry-renderer>
+          <ytd-guide-entry-renderer><a id="endpoint" title="History" href="/feed/history">History</a></ytd-guide-entry-renderer>
+        </div></ytd-guide-section-renderer>
+      </ytd-guide-renderer>
+      <ytd-mini-guide-renderer>
+        <ytd-mini-guide-entry-renderer><a id="endpoint" title="Home" href="/">Home</a></ytd-mini-guide-entry-renderer>
+        <ytd-mini-guide-entry-renderer><a id="endpoint" title="Shorts" href="/shorts/">Shorts</a></ytd-mini-guide-entry-renderer>
+        <ytd-mini-guide-entry-renderer><a id="endpoint" title="Subscriptions" href="/feed/subscriptions">Subscriptions</a></ytd-mini-guide-entry-renderer>
+      </ytd-mini-guide-renderer>`;
+
+    /** The menu entries left showing on a page with the given modes. */
+    function visible(path: string, modes: Partial<Record<SurfaceId, Mode>> = {}, html = page) {
+      document.body.innerHTML = html;
+      const { hide } = planPage(youtube, input(path, modes));
+      return [...document.querySelectorAll('a')]
+        .filter((element) => !hide.some((selector) => element.closest(selector)))
+        .map((element) => element.textContent);
+    }
+
+    it('loses the Shorts tab on every page, in both menus', () => {
+      for (const path of ['/', '/watch?v=abc', '/results?search_query=x', '/feed/subscriptions']) {
+        expect(visible(path), path).toEqual([
+          'Home',
+          'Subscriptions',
+          'A channel called Shorts',
+          'History',
+          'Home',
+          'Subscriptions',
+        ]);
+      }
+    });
+
+    it('finds the Shorts tab in any language', () => {
+      const japanese = page.replace('title="Shorts">Shorts<', 'title="ショート">ショート<');
+      expect(visible('/', {}, japanese)).not.toContain('ショート');
+    });
+
+    it('keeps the Shorts tab in friction mode', () => {
+      const shorts = visible('/', { 'youtube.shorts': 'friction' }).filter((t) => t === 'Shorts');
+      expect(shorts).toHaveLength(2);
+    });
+  });
+
   it('opens shared Shorts as normal videos', () => {
     expect(redirectFor(youtube, input('/shorts/abc-_123?feature=share'))).toBe('/watch?v=abc-_123');
     expect(redirectFor(youtube, input('/shorts/'))).toBeNull();

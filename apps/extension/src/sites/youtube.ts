@@ -23,6 +23,15 @@ export default defineSite({
       hide: [
         {
           selectors: [
+            // The Shorts tab in the menu. It's the only top entry with no link, because it
+            // opens a random Short instead of a page, so this works in any language. Checked
+            // against the live site on 2026-10-03, signed in and out.
+            'ytd-guide-entry-renderer[is-primary]:has(> a#endpoint:not([href]))',
+            // Fallback: its label, which stays "Shorts" in most languages. A channel with that
+            // name links to its page, so it stays.
+            'ytd-guide-entry-renderer:has(> a#endpoint[title="Shorts"]:not([href]))',
+            // The mini menu, on narrower windows, links to it.
+            'ytd-mini-guide-entry-renderer:has(> a#endpoint[href^="/shorts"])',
             // Shelves in home, subscriptions, and search results
             'ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts])',
             'ytd-reel-shelf-renderer',
@@ -36,7 +45,8 @@ export default defineSite({
           ],
         },
       ],
-      // The Shorts tab stays in the menu: entering it is a choice, so it gets the prompt instead.
+      // The Shorts player, opened from a link, a channel's Shorts tab, or the menu in friction
+      // mode, which keeps the tab and only adds the prompt.
       gate: '^/shorts(/|$)',
       // A shared Short opens as a normal video: that one video, without the endless swipe.
       redirect: { from: '^/shorts/([\\w-]+)', to: '/watch?v=$1' },

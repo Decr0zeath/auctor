@@ -70,7 +70,7 @@ A **surface** is one brain-rot entry point in a site or app, with a stable ID sh
 | Surface ID | Default | Extension | Android |
 |---|---|---|---|
 | `youtube.home-feed` | Off | When set to Remove: hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
-| `youtube.shorts` | Remove shelves, friction to enter | Hide Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts tab. | Detect the Shorts player and show friction |
+| `youtube.shorts` | Remove the tab and shelves, friction to enter | Hide Shorts in the menu, and Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts player (`/shorts/*`), which still opens from links and a channel's Shorts tab. | Detect the Shorts player and show friction |
 | `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
 | `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. In its place, the [daily post](docs/surfaces.md#the-daily-post). The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
 | `facebook.composer` | Remove | Hide the "What's on your mind?" box on `/`. Posting still works from your profile. | Later |
