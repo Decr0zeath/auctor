@@ -180,14 +180,20 @@ export async function runSite(ctx: ContentScriptContext, site: Site): Promise<vo
   ctx.addEventListener(document, 'visibilitychange', evaluate);
   ctx.addEventListener(window, 'beforeunload', () => (leaving = true));
   ctx.onInvalidated(() => {
-    unwatchState();
-    unwatchPasses();
     hider.remove();
     rewriter.remove();
     pauser.remove();
     switcher.remove();
     replacements.remove();
     gate.close();
+    // When the extension is reloaded or updated, its storage goes away, and the listeners with
+    // it, so removing them throws "Extension context invalidated".
+    try {
+      unwatchState();
+      unwatchPasses();
+    } catch {
+      // Already gone.
+    }
   });
 
   evaluate();
