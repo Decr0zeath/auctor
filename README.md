@@ -2,7 +2,7 @@
 
 *Be the author of your attention.*
 
-> **Status: design phase.** No code yet. This README records decisions as they're made.
+> **Status: early development.** The browser extension (phase 1) is being built in [`apps/extension`](apps/extension). This README records decisions as they're made.
 
 Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while keeping the useful parts of the same sites and apps: search, subscriptions, messages, groups, specific videos.
 
@@ -19,6 +19,8 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 | License | GPL-3.0 ([why](#license)) |
 | Repo | One monorepo for both apps: `github.com/Decr0zeath/auctor`, private for now |
 | Logo | Hervé Bazin's **authority point** ([concept](#logo-the-authority-point)) |
+| The pause | A 15-second wait, then a 5-minute pass. Both are adjustable, and loosening either waits 24 hours. |
+| YouTube home feed | **Left on by default**, because it's where I pick background listening while working (lectures, talks, music). Removing it stays available as a setting. |
 
 ## Research
 
@@ -35,7 +37,7 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 
 ### Design principles
 
-1. **Remove** feeds you land on without choosing (home feeds, Shorts shelves, recommendation sidebars). Add **friction** to feeds you choose to enter (the Shorts player, Reels, Watch, "show it anyway"). Offer optional daily **limits** set in advance. Never add friction to every scroll or post.
+1. **Remove** feeds you land on without choosing (home feeds, Shorts shelves, recommendation sidebars). Add **friction** to feeds you choose to enter (the Shorts player, Reels, "show it anyway"). Offer optional daily **limits** set in advance. Never add friction to every scroll or post.
 2. **The prompt offers a way out:** "Why are you opening this?" with **Go back** as the main action.
 3. **Weakening protection is delayed.** Loosening a limit, pausing, or uninstalling takes effect tomorrow or after a cooldown; tightening is immediate. Never offer "easier" in the moment.
 4. **Breaks are visible and short.**
@@ -48,12 +50,11 @@ A **surface** is one brain-rot entry point in a site or app, with a stable ID sh
 
 | Surface ID | Default | Extension | Android |
 |---|---|---|---|
-| `youtube.home-feed` | Remove | Hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
+| `youtube.home-feed` | Off | When set to Remove: hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
 | `youtube.shorts` | Remove shelves, friction to enter | Hide Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts tab. | Detect the Shorts player and show friction |
 | `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
-| `facebook.feed` | Remove | Hide the News Feed on `/` and keep navigation. Link to the Favorites/Friends feed if Facebook still offers it. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
-| `facebook.reels` | Friction | `/reel/*`, `/reels/*` | Detect the Reels viewer |
-| `facebook.watch` | Friction | `/watch` | Detect the Video tab |
+| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays, and the panel links to it. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.reels` | Friction | `/reel/*`, `/reels/*`, and the old Video tab (`/watch`), which Facebook now redirects to Reels | Detect the Reels viewer |
 
 - **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications.
 - **Facebook is the hard target on both platforms.** Its web HTML uses randomized class names, so we rely on URLs and ARIA roles. Its Android app exposes few stable view IDs, so we may have to match on-screen labels, which change with the phone's language.
@@ -77,6 +78,7 @@ A monorepo using the common `apps/` layout (as in Bitwarden's clients repo):
 │   ├── research.md             ← the studies in more detail
 │   └── adr/                    ← Architecture Decision Records
 ├── .editorconfig, .gitattributes, .gitignore
+├── package.json, pnpm-workspace.yaml   ← pnpm workspace for the JavaScript apps
 ├── CODE_OF_CONDUCT.md          ← Contributor Covenant
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -122,19 +124,20 @@ See [choosealicense.com](https://choosealicense.com/licenses/gpl-3.0/). *A summa
 
 ## Roadmap
 
-| Phase | Scope |
-|---|---|
-| 0 | Repo setup: the files and conventions above, plus `docs/surfaces.md` |
-| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits |
-| 2 | Android app for YouTube and Facebook with the same surfaces and behavior (**the main target**) |
-| 3 | More apps: Instagram, TikTok, X, Reddit |
+| Phase | Scope | Status |
+|---|---|---|
+| 0 | Repo setup: the files and conventions above, plus `docs/surfaces.md` | Workspace, license, CI, and `docs/surfaces.md` done. Community files, templates, and `PRIVACY.md` to do. |
+| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits | Removal, friction, and delayed changes built. Limits to do. |
+| 2 | Android app for YouTube and Facebook with the same surfaces and behavior (**the main target**) | |
+| 3 | More apps: Instagram, TikTok, X, Reddit | |
 
 ## Technical notes
 
 ### Extension
 - **URL rules first, DOM hiding second.** URL rules (`/shorts/<id>` → `/watch?v=<id>`) are stable. CSS selectors break whenever a site changes its layout and are the main maintenance cost.
-- YouTube and Facebook are single-page apps, so `declarativeNetRequest` alone misses in-app navigation. Content scripts watch for URL changes and use a `MutationObserver` for content that loads later.
-- Site rules live in data files, separate from logic, so fixing a broken site is a one-line change.
+- One content script handles every site, starting at `document_start`. It rewrites shared links itself instead of using `declarativeNetRequest`, which keeps `storage` the only permission. Because YouTube and Facebook are single-page apps, it also watches for in-app URL changes.
+- Hiding is a stylesheet, so content that loads later is hidden without watching the DOM.
+- Site rules live in data files, separate from logic, so fixing a broken site is a one-line change. Adding a site is one rules file ([how](apps/extension/README.md#adding-a-site)).
 
 ### Android
 - An **`AccessibilityService`**, limited through `packageNames` to YouTube (`com.google.android.youtube`) and Facebook (`com.facebook.katana`) for privacy and battery.
@@ -178,5 +181,4 @@ The space is crowded:
 
 - [ ] Final name check of "Auctor" on GitHub, the Chrome Web Store, Google Play, Firefox Add-ons, and USPTO/EUIPO (earlier checks were light web searches)
 - [ ] Draw the authority-point logo as an SVG
-- [ ] How long access lasts after passing the prompt (for example, 5 minutes of Shorts)
 - [ ] A weekly summary (times you turned back, time saved)?
