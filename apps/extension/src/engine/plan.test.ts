@@ -1,0 +1,126 @@
+import { surface } from '@/catalog/surfaces';
+import type { Mode, SurfaceId } from '@/catalog/surfaces';
+import facebook from '@/sites/facebook';
+import youtube from '@/sites/youtube';
+import { describe, expect, it } from 'vitest';
+import { planPage, redirectFor } from './plan';
+import type { Passes } from './plan';
+
+const NOW = 1_700_000_000_000;
+
+function input(path: string, modes: Partial<Record<SurfaceId, Mode>> = {}, passes: Passes = {}) {
+  return {
+    path,
+    modeOf: (id: SurfaceId) => modes[id] ?? surface(id).defaultMode,
+    passes,
+    now: NOW,
+  };
+}
+
+describe('YouTube', () => {
+  it('leaves the home feed alone by default', () => {
+    const plan = planPage(youtube, input('/'));
+    expect(plan.hide).not.toContain('ytd-browse[page-subtype="home"] ytd-rich-grid-renderer');
+    expect(plan.replacements).toEqual([]);
+  });
+
+  it('removes the home feed and offers a replacement panel when asked to', () => {
+    const plan = planPage(youtube, input('/', { 'youtube.home-feed': 'remove' }));
+    expect(plan.hide).toContain('ytd-browse[page-subtype="home"] ytd-rich-grid-renderer');
+    expect(plan.replacements.map((item) => item.surface)).toEqual(['youtube.home-feed']);
+    expect(plan.gated).toBeNull();
+  });
+
+  it('puts the Shorts player behind the prompt', () => {
+    for (const path of ['/shorts/', '/shorts/abc123', '/shorts']) {
+      expect(planPage(youtube, input(path))).toMatchObject({
+        gated: 'youtube.shorts',
+        prompt: true,
+      });
+    }
+    expect(planPage(youtube, input('/feed/shorts-like-page')).gated).toBeNull();
+  });
+
+  it('lifts everything for a surface while its pass lasts', () => {
+    const passes = { 'youtube.shorts': NOW + 60_000 };
+    const plan = planPage(youtube, input('/shorts/abc', {}, passes));
+    expect(plan).toMatchObject({
+      gated: 'youtube.shorts',
+      prompt: false,
+      passEndsAt: NOW + 60_000,
+    });
+    expect(plan.hide).not.toContain('ytd-reel-shelf-renderer');
+  });
+
+  it('ignores expired passes', () => {
+    const plan = planPage(youtube, input('/shorts/abc', {}, { 'youtube.shorts': NOW - 1 }));
+    expect(plan).toMatchObject({ prompt: true, passEndsAt: null });
+  });
+
+  it('only gates, without hiding, in friction mode', () => {
+    const plan = planPage(youtube, input('/shorts/abc', { 'youtube.shorts': 'friction' }));
+    expect(plan.prompt).toBe(true);
+    expect(plan.hide).not.toContain('ytd-reel-shelf-renderer');
+  });
+
+  it('does nothing for a surface that is off', () => {
+    const off = {
+      'youtube.home-feed': 'off',
+      'youtube.shorts': 'off',
+      'youtube.recommendations': 'off',
+    } as const;
+    expect(planPage(youtube, input('/shorts/abc', off))).toEqual({
+      hide: [],
+      replacements: [],
+      gated: null,
+      prompt: false,
+      passEndsAt: null,
+    });
+  });
+
+  it('opens shared Shorts as normal videos', () => {
+    expect(redirectFor(youtube, input('/shorts/abc-_123?feature=share'))).toBe('/watch?v=abc-_123');
+    expect(redirectFor(youtube, input('/shorts/'))).toBeNull();
+    expect(redirectFor(youtube, input('/shorts/abc', { 'youtube.shorts': 'friction' }))).toBe(
+      '/watch?v=abc',
+    );
+    expect(redirectFor(youtube, input('/shorts/abc', { 'youtube.shorts': 'off' }))).toBeNull();
+  });
+});
+
+describe('Facebook', () => {
+  it('removes the feed on the home page only', () => {
+    for (const path of ['/', '/?sk=h_chr', '/home.php']) {
+      const plan = planPage(facebook, input(path));
+      expect(plan.hide, path).toContain('[role="main"] h3 + [aria-hidden="true"] + div');
+      expect(
+        plan.replacements.map((item) => item.surface),
+        path,
+      ).toEqual(['facebook.feed']);
+    }
+  });
+
+  it('leaves the Feeds page and the rest of the site alone', () => {
+    for (const path of [
+      '/?filter=all&sk=h_chr',
+      '/?sk=h_chr&filter=favorites',
+      '/groups/feed/',
+      '/marketplace/',
+    ]) {
+      const plan = planPage(facebook, input(path));
+      expect(plan.hide, path).toEqual([]);
+      expect(plan.replacements, path).toEqual([]);
+    }
+  });
+
+  it('puts Reels and the old Video tab behind the prompt', () => {
+    for (const path of ['/reel/123', '/reel/?s=tab', '/reels/', '/watch/', '/watch?ref=tab']) {
+      expect(planPage(facebook, input(path)).gated, path).toBe('facebook.reels');
+    }
+  });
+
+  it('lets a specific video through', () => {
+    expect(planPage(facebook, input('/watch/?v=123')).gated).toBeNull();
+    expect(planPage(facebook, input('/watch/?ref=x&v=123')).gated).toBeNull();
+  });
+});
