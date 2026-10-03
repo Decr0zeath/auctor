@@ -10,7 +10,7 @@ From strongest to weakest:
 
 | Mode | What happens |
 |---|---|
-| `remove` | Hidden. Where the content was, a panel offers search and shortcuts, or the [daily post](#the-daily-post), plus a "show anyway" option that goes through the prompt. Entering the surface on purpose (such as the Shorts tab) still works through the prompt. |
+| `remove` | Hidden. Where the content was, a panel offers search and shortcuts, or the [daily post](#the-daily-post), plus a "show anyway" option that goes through the prompt. Entering the surface on purpose (such as a Short on a channel's Shorts tab) still works through the prompt. |
 | `friction` | Shown, but entering it opens the prompt first. |
 | `off` | Left as it is. |
 
@@ -21,7 +21,7 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | Surface ID | Default | Modes | Covers |
 |---|---|---|---|
 | `youtube.home-feed` | `off` | `remove`, `off` | The recommendation grid on the home page. Off by default, because the home feed is where many people pick background listening. |
-| `youtube.shorts` | `remove` | `remove`, `friction`, `off` | Shorts shelves, and the Shorts player. A shared Short opens as a normal video, unless the mode is `off`. |
+| `youtube.shorts` | `remove` | `remove`, `friction`, `off` | Shorts in the menu (and the mini menu on narrower windows), Shorts shelves, and the Shorts player. A channel's own Shorts tab stays. A shared Short opens as a normal video, unless the mode is `off`. |
 | `youtube.recommendations` | `remove` | `remove`, `off` | The "Up next" sidebar and end screens on video pages |
 | `facebook.feed` | `remove` | `remove`, `off` | The feed on the home page, which becomes the [daily post](#the-daily-post). The Feeds page (All, Favorites, Friends, Groups, Pages), which only shows sources you follow, stays. |
 | `facebook.composer` | `remove` | `remove`, `off` | The "What's on your mind?" box on the home page. Posting still works from your profile. |
@@ -42,7 +42,7 @@ Where a removed feed was, there's **one post a day**: a painting with a quote ov
 - The post, its way back, and the prompt it opens change at **local midnight** and stay the same all day. Refreshing never brings a new one, because a post that changed on every visit would be a feed of its own.
 - Quotes and paintings each go round in order, and the paintings shift one step each time the quotes start over, so in time every quote meets every painting. The same date gives the same post on every device.
 - Quotes come from the Stoics (Seneca, Marcus Aurelius, Epictetus) and the Bible (King James Version), about time, discipline, and putting things off. Each one is checked word for word against a public-domain translation.
-- Paintings are in the public domain, cropped to 4:5 at 960×1200, and ship with the app, so showing the post makes no network requests.
+- Paintings are in the public domain, as is the one statue's photo (CC0). They're cropped to 4:5 at 960×1200, and ship with the app, so showing the post makes no network requests.
 - The list is in [`apps/extension/src/catalog/posts.ts`](../apps/extension/src/catalog/posts.ts), with each quote's translation and each painting's source.
 - Shown on `facebook.feed`. YouTube's home feed gets it later.
 

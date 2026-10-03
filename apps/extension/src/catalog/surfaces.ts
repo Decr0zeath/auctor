@@ -46,7 +46,7 @@ export const SURFACES = {
     site: 'youtube',
     label: 'Shorts',
     name: 'YouTube Shorts',
-    description: 'Shorts shelves, and the Shorts player you swipe through',
+    description: 'Shorts in the menu, Shorts shelves, and the Shorts player you swipe through',
     modes: ['remove', 'friction', 'off'],
     defaultMode: 'remove',
   },
