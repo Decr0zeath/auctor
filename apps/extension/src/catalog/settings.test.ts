@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_SETTINGS,
   INITIAL_STATE,
+  WAIT_SECONDS_OPTIONS,
   WEAKEN_DELAY_MS,
   cancelPending,
   modeOf,
@@ -10,6 +11,7 @@ import {
   requestChange,
   resolveDue,
   toSettingsFile,
+  upgradeState,
 } from './settings';
 import type { Change, State } from './settings';
 
@@ -82,8 +84,12 @@ describe('requestChange', () => {
   });
 
   it('treats a shorter wait and a longer pass as loosening', () => {
-    const shorterWait = requestChange(INITIAL_STATE, { setting: 'waitSeconds', value: 3 }, NOW);
-    expect(shorterWait.settings.waitSeconds).toBe(15);
+    const longWait: State = {
+      ...INITIAL_STATE,
+      settings: { ...DEFAULT_SETTINGS, waitSeconds: 300 },
+    };
+    const shorterWait = requestChange(longWait, { setting: 'waitSeconds', value: 120 }, NOW);
+    expect(shorterWait.settings.waitSeconds).toBe(300);
     expect(shorterWait.pending).toHaveLength(1);
 
     const longerPass = requestChange(INITIAL_STATE, { setting: 'passMinutes', value: 30 }, NOW);
@@ -92,9 +98,9 @@ describe('requestChange', () => {
   });
 
   it('treats a longer wait and a shorter pass as tightening', () => {
-    let state = requestChange(INITIAL_STATE, { setting: 'waitSeconds', value: 30 }, NOW);
+    let state = requestChange(INITIAL_STATE, { setting: 'waitSeconds', value: 600 }, NOW);
     state = requestChange(state, { setting: 'passMinutes', value: 1 }, NOW);
-    expect(state.settings).toMatchObject({ waitSeconds: 30, passMinutes: 1 });
+    expect(state.settings).toMatchObject({ waitSeconds: 600, passMinutes: 1 });
     expect(state.pending).toEqual([]);
   });
 
@@ -118,8 +124,37 @@ describe('pending changes', () => {
   it('report when the next one is due', () => {
     expect(nextDueAt(INITIAL_STATE)).toBeNull();
     let state = requestChange(INITIAL_STATE, shortsOff, NOW);
-    state = requestChange(state, { setting: 'waitSeconds', value: 3 }, NOW - 5000);
+    state = requestChange(state, { setting: 'passMinutes', value: 30 }, NOW - 5000);
     expect(nextDueAt(state)).toBe(NOW - 5000 + WEAKEN_DELAY_MS);
+  });
+});
+
+describe('the wait before Continue', () => {
+  it('is never shorter than two minutes', () => {
+    expect(Math.min(...WAIT_SECONDS_OPTIONS)).toBe(120);
+    expect(DEFAULT_SETTINGS.waitSeconds).toBe(120);
+  });
+
+  it('is raised at once when saved under the old, shorter options', () => {
+    const old: State = {
+      settings: { ...DEFAULT_SETTINGS, waitSeconds: 15 },
+      pending: [
+        { change: { setting: 'waitSeconds', value: 3 }, effectiveAt: NOW },
+        { change: shortsOff, effectiveAt: NOW },
+      ],
+    };
+    expect(upgradeState(old)).toEqual({
+      settings: { ...DEFAULT_SETTINGS, waitSeconds: 120 },
+      pending: [{ change: shortsOff, effectiveAt: NOW }],
+    });
+  });
+
+  it('is left alone when it already follows the current options', () => {
+    const state: State = {
+      settings: { ...DEFAULT_SETTINGS, waitSeconds: 300 },
+      pending: [{ change: { setting: 'waitSeconds', value: 180 }, effectiveAt: NOW }],
+    };
+    expect(upgradeState(state)).toEqual(state);
   });
 });
 
@@ -127,13 +162,13 @@ describe('settings files', () => {
   it('round-trip through export and import', () => {
     const settings = {
       surfaces: { 'youtube.shorts': 'friction' as const },
-      waitSeconds: 10,
+      waitSeconds: 300,
       passMinutes: 3,
     };
     expect(parseSettingsFile(JSON.parse(JSON.stringify(toSettingsFile(settings))))).toEqual({
       changes: [
         { setting: 'mode', surface: 'youtube.shorts', value: 'friction' },
-        { setting: 'waitSeconds', value: 10 },
+        { setting: 'waitSeconds', value: 300 },
         { setting: 'passMinutes', value: 3 },
       ],
     });
@@ -156,7 +191,8 @@ describe('settings files', () => {
           'youtube.shorts': 'banana',
           'other.app': 'off',
         },
-        waitSeconds: 0,
+        // A wait from before the shortest one was 2 minutes.
+        waitSeconds: 15,
         passMinutes: 600,
       },
     };

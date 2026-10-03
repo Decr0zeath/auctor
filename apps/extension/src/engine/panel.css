@@ -86,7 +86,7 @@ input::placeholder {
   cursor: pointer;
 }
 
-/* With the daily post: as wide as the site's own posts, with no box or title, and the ways out
+/* With the post: as wide as the site's own posts, with no box or title, and the ways out
    kept quiet under the post. */
 :host(.with-post) {
   max-width: none;

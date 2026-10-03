@@ -6,7 +6,7 @@ import { renderPost } from './post';
 
 const publicDir = resolve(import.meta.dirname, '../../public');
 
-describe('the daily post', () => {
+describe('the post', () => {
   it('ships an image for every painting, and no others', () => {
     const files = readdirSync(resolve(publicDir, 'posts')).toSorted();
     expect(files).toEqual(PAINTINGS.map((painting) => `${painting.id}.webp`).toSorted());
@@ -18,7 +18,7 @@ describe('the daily post', () => {
     );
   });
 
-  it('shows the day’s quote over its painting', () => {
+  it('shows the quote over its painting', () => {
     const date = new Date(2026, 9, 3);
     const { quote, painting } = postFor(date);
     const post = renderPost(postFor(date));

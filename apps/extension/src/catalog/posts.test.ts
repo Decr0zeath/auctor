@@ -1,45 +1,57 @@
 import { describe, expect, it } from 'vitest';
-import { GIVE_IN, GIVE_IN_WAIT_SECONDS, PAINTINGS, QUOTES, dayNumber, postFor } from './posts';
+import { GIVE_IN, PAINTINGS, POST_MINUTES, QUOTES, nextPostAt, postFor, postNumber } from './posts';
 
-describe('the daily post', () => {
-  it('stays the same all day, by the local calendar', () => {
-    const morning = postFor(new Date(2026, 9, 3, 0, 0, 1));
-    const night = postFor(new Date(2026, 9, 3, 23, 59, 59));
-    expect(night).toEqual(morning);
+/** The posts for `turns` turns in a row, from `start`. */
+const postsFrom = (start: Date, turns: number) =>
+  Array.from({ length: turns }, (_, i) =>
+    postFor(new Date(start.getTime() + i * POST_MINUTES * 60_000)),
+  );
+
+// Long enough for the paintings to skip one at every offset against the quotes.
+const MANY_TURNS = 2 * QUOTES.length * PAINTINGS.length;
+
+describe('the post', () => {
+  it('changes every ten minutes, on the clock', () => {
+    expect(POST_MINUTES).toBe(10);
+    const first = postFor(new Date(Date.UTC(2026, 9, 3, 14, 10, 0)));
+    expect(postFor(new Date(Date.UTC(2026, 9, 3, 14, 19, 59)))).toEqual(first);
+    expect(postFor(new Date(Date.UTC(2026, 9, 3, 14, 20, 0)))).not.toEqual(first);
   });
 
-  it('changes at midnight', () => {
-    const today = postFor(new Date(2026, 9, 3, 23, 59, 59));
-    const tomorrow = postFor(new Date(2026, 9, 4, 0, 0, 1));
-    expect(tomorrow.quote).not.toBe(today.quote);
-    expect(tomorrow.painting).not.toBe(today.painting);
-    expect(tomorrow.giveIn).not.toBe(today.giveIn);
+  it('knows when the next post is up', () => {
+    const now = new Date(Date.UTC(2026, 9, 3, 14, 12, 30));
+    expect(nextPostAt(now)).toBe(Date.UTC(2026, 9, 3, 14, 20));
+    expect(postNumber(new Date(nextPostAt(now)))).toBe(postNumber(now) + 1);
   });
 
-  it('counts days across daylight saving changes', () => {
-    // Most of Europe moves its clocks back on this night.
-    expect(dayNumber(new Date(2026, 9, 26)) - dayNumber(new Date(2026, 9, 25))).toBe(1);
+  it('never keeps the last post’s quote, painting, or way back', () => {
+    const posts = postsFrom(new Date(2026, 9, 3), MANY_TURNS);
+    for (let i = 1; i < posts.length; i++) {
+      const [last, next] = [posts[i - 1]!, posts[i]!];
+      expect(next.quote, `turn ${i}`).not.toBe(last.quote);
+      expect(next.painting, `turn ${i}`).not.toBe(last.painting);
+      expect(next.giveIn, `turn ${i}`).not.toBe(last.giveIn);
+    }
   });
 
-  it('shows every quote once before repeating one', () => {
-    const start = new Date(2026, 0, 1);
-    const days = Array.from({ length: QUOTES.length }, (_, i) => {
-      const date = new Date(start);
-      date.setDate(start.getDate() + i);
-      return postFor(date).quote;
-    });
-    expect(new Set(days).size).toBe(QUOTES.length);
+  it('shows every quote, and every painting but one, before repeating any', () => {
+    const posts = postsFrom(new Date(2026, 9, 3), MANY_TURNS);
+    const distinct = (length: number, key: 'quote' | 'painting') => {
+      for (let i = 0; i + length <= posts.length; i++) {
+        const shown = posts.slice(i, i + length).map((post) => post[key]);
+        expect(new Set(shown).size, `${key}s from turn ${i}`).toBe(length);
+      }
+    };
+    distinct(QUOTES.length, 'quote');
+    distinct(PAINTINGS.length - 1, 'painting');
   });
 
   it('pairs every quote with every painting over time', () => {
-    const pairs = new Set<string>();
-    const start = new Date(2026, 0, 1);
-    for (let i = 0; i < QUOTES.length * PAINTINGS.length; i++) {
-      const date = new Date(start);
-      date.setDate(start.getDate() + i);
-      const { quote, painting } = postFor(date);
-      pairs.add(`${QUOTES.indexOf(quote)}:${painting.id}`);
-    }
+    const pairs = new Set(
+      postsFrom(new Date(0), QUOTES.length * PAINTINGS.length).map(
+        ({ quote, painting }) => `${QUOTES.indexOf(quote)}:${painting.id}`,
+      ),
+    );
     expect(pairs.size).toBe(QUOTES.length * PAINTINGS.length);
   });
 
@@ -61,10 +73,6 @@ describe('the daily post', () => {
         /(yours|your call|up to you|You decide|free to choose|will be here)\.$/,
       );
     }
-  });
-
-  it('makes giving in from the post wait two minutes', () => {
-    expect(GIVE_IN_WAIT_SECONDS).toBe(120);
   });
 
   it('keeps quotes short enough to fit over a painting', () => {

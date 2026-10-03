@@ -44,9 +44,9 @@ Prefer rules in this order, because the later ones break more often when a site 
 2. **ARIA roles and stable IDs** in selectors.
 3. **Class and element names**: last resort, and expect to maintain them.
 
-## The daily post
+## The post
 
-The post that replaces a removed feed ([how it works](../../docs/surfaces.md#the-daily-post)) is a site rule away: `post: true` on a surface's `replacement`. Its quotes, its paintings, and the wording of its way back to the feed (`GIVE_IN`) are listed in `src/catalog/posts.ts`; the files ship in `public/`:
+The post that replaces a removed feed ([how it works](../../docs/surfaces.md#the-post)) is a site rule away: `post: true` on a surface's `replacement`. Its quotes, its paintings, and the wording of its way back to the feed (`GIVE_IN`) are listed in `src/catalog/posts.ts`; the files ship in `public/`:
 
 | Folder | What's in it | License |
 |---|---|---|
@@ -57,4 +57,4 @@ To add a painting, crop it to 960×1200, darken it to sit with the others if nee
 
 ## Permissions
 
-Only `storage`. The content script runs only on the sites in `src/sites/`, and nothing leaves the browser. The daily post's paintings and fonts are web-accessible resources, limited to the sites that show the post, so those pages can load them from the extension.
+Only `storage`. The content script runs only on the sites in `src/sites/`, and nothing leaves the browser. The post's paintings and fonts are web-accessible resources, limited to the sites that show the post, so those pages can load them from the extension.

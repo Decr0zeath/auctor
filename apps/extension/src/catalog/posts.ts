@@ -1,8 +1,8 @@
 /**
- * The daily post: one quote over one painting, shown where a removed feed used to be, with a way
- * back to the feed under it. All of it, the prompt included, changes once a day, at local
- * midnight, so refreshing never brings a new one: a post that changed on every visit would become
- * a feed of its own.
+ * The post: one quote over one painting, shown where a removed feed used to be, with a way back to
+ * the feed under it. All of it, the prompt included, changes every POST_MINUTES minutes, on the
+ * same clock everywhere, and each change brings a new quote and a new painting. Refreshing never
+ * brings one sooner: a post that changed on every visit would become a feed of its own.
  *
  * Every quote is checked word for word against a public-domain translation, and every painting
  * is in the public domain. So is the one statue, Marcus Aurelius, whose photographer released the
@@ -49,7 +49,7 @@ const LETTERS = (letter: number) =>
   `Moral Letters to Lucilius, ${letter}, tr. Richard M. Gummere (1917)`;
 const MEDITATIONS = (section: string) => `Meditations, ${section}, tr. George Long (1862)`;
 
-/** Alternates between the Stoics and the Bible, so consecutive days differ in voice. */
+/** Alternates between the Stoics and the Bible, so consecutive posts differ in voice. */
 export const QUOTES: readonly Quote[] = [
   {
     text: 'Postponement is the greatest waste of life: it wrings day after day from us, and takes away the present by promising something hereafter.',
@@ -255,7 +255,7 @@ export const QUOTES: readonly Quote[] = [
 
 const commons = (file: string) => `https://commons.wikimedia.org/wiki/File:${file}`;
 
-/** Mounted and standing figures take turns, so a horse seldom shows two days in a row. */
+/** Mounted and standing figures take turns, so a horse seldom shows two posts in a row. */
 export const PAINTINGS: readonly Painting[] = [
   {
     id: 'marcus-aurelius',
@@ -461,24 +461,34 @@ export const GIVE_IN: readonly GiveIn[] = [
   },
 ];
 
-/** How long giving in from the post waits. It's fixed, so no setting can shorten it. */
-export const GIVE_IN_WAIT_SECONDS = 120;
+/** How long each post stays up. */
+export const POST_MINUTES = 10;
+const POST_MS = POST_MINUTES * 60_000;
 
-/** Days since 1970-01-01 by the local calendar, so the post changes at local midnight. */
-export function dayNumber(date: Date): number {
-  return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000);
+/** Which post is up: the number of turns since 1970, so every device shows the same one. */
+export function postNumber(date: Date): number {
+  return Math.floor(date.getTime() / POST_MS);
 }
 
-/** The post for a given day. Everyone sees the same post on the same date, on every device. */
+/** When the post up at `date` gives way to the next one, in milliseconds since 1970. */
+export function nextPostAt(date: Date): number {
+  return (postNumber(date) + 1) * POST_MS;
+}
+
+const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+
+/**
+ * The post up at a given time. The quotes and the paintings each go round in order, so a new post
+ * never keeps the last one's quote or painting, and every quote shows before any comes back. Each
+ * time the two lists line up again, the paintings skip one, so over time every quote meets every
+ * painting, whatever the two list lengths are.
+ */
 export function postFor(date: Date): Post {
-  const day = dayNumber(date);
-  const quote = day % QUOTES.length;
-  // Each time the quotes start over, the paintings shift one step, so over time every quote
-  // meets every painting, whatever the two list lengths are.
-  const cycle = Math.floor(day / QUOTES.length);
+  const turn = postNumber(date);
+  const lineUp = (QUOTES.length * PAINTINGS.length) / gcd(QUOTES.length, PAINTINGS.length);
   return {
-    quote: QUOTES[quote]!,
-    painting: PAINTINGS[(quote + cycle) % PAINTINGS.length]!,
-    giveIn: GIVE_IN[day % GIVE_IN.length]!,
+    quote: QUOTES[turn % QUOTES.length]!,
+    painting: PAINTINGS[(turn + Math.floor(turn / lineUp)) % PAINTINGS.length]!,
+    giveIn: GIVE_IN[turn % GIVE_IN.length]!,
   };
 }

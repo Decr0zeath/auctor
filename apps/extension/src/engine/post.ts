@@ -1,5 +1,5 @@
 /**
- * The daily post: a quote over a painting, drawn at the top of a replacement panel. The images and
+ * The post: a quote over a painting, drawn at the top of a replacement panel. The images and
  * fonts ship with the extension, so showing it makes no network requests.
  */
 import type { Post } from '@/catalog/posts';

@@ -10,7 +10,7 @@ From strongest to weakest:
 
 | Mode | What happens |
 |---|---|
-| `remove` | Hidden. Where the content was, a panel offers search and shortcuts, or the [daily post](#the-daily-post), plus a "show anyway" option that goes through the prompt. Entering the surface on purpose (such as a Short on a channel's Shorts tab) still works through the prompt. |
+| `remove` | Hidden. Where the content was, a panel offers search and shortcuts, or the [post](#the-post), plus a "show anyway" option that goes through the prompt. Entering the surface on purpose (such as a Short on a channel's Shorts tab) still works through the prompt. |
 | `friction` | Shown, but entering it opens the prompt first. |
 | `off` | Left as it is. |
 
@@ -23,7 +23,7 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | `youtube.home-feed` | `off` | `remove`, `off` | The recommendation grid on the home page. Off by default, because the home feed is where many people pick background listening. |
 | `youtube.shorts` | `remove` | `remove`, `friction`, `off` | Shorts in the menu (and the mini menu on narrower windows), Shorts shelves, and the Shorts player. A channel's own Shorts tab stays. A shared Short opens as a normal video, unless the mode is `off`. |
 | `youtube.recommendations` | `remove` | `remove`, `off` | The "Up next" sidebar and end screens on video pages |
-| `facebook.feed` | `remove` | `remove`, `off` | The feed on the home page, which becomes the [daily post](#the-daily-post). The Feeds page (All, Favorites, Friends, Groups, Pages), which only shows sources you follow, stays. |
+| `facebook.feed` | `remove` | `remove`, `off` | The feed on the home page, which becomes the [post](#the-post). The Feeds page (All, Favorites, Friends, Groups, Pages), which only shows sources you follow, stays. |
 | `facebook.composer` | `remove` | `remove`, `off` | The "What's on your mind?" box on the home page. Posting still works from your profile. |
 | `facebook.stories` | `remove` | `remove`, `friction`, `off` | The stories row (called My Day in some regions) on the home page, and the stories viewer. Making your own story (`/stories/create/`) opens normally. |
 | `facebook.reels` | `remove` | `remove`, `friction`, `off` | Reels in the top bar and the home page's left sidebar (Video in older layouts), and the Reels player, including the old Video page (`/watch`), which now redirects to Reels. A link to a specific video opens normally. |
@@ -35,12 +35,12 @@ Surface IDs are `<site>.<surface>` and are permanent once released, because sett
 | `facebook.sponsored` | `remove` | `remove`, `off` | The ads in the home page's right panel |
 | `facebook.contacts` | `remove` | `remove`, `off` | The Contacts and Group chats lists in the home page's right panel. Chats still open from Messenger. |
 
-## The daily post
+## The post
 
-Where a removed feed was, there's **one post a day**: a painting with a quote over it. Under it, the only thing to click is the way back to the feed, worded to make you think twice ("Succumb to temptation", "Abandon the vigil", "Kneel to the algorithm"). It still goes through the prompt, and its tooltip says what it does.
+Where a removed feed was, there's **one post**, changed **every 10 minutes**: a painting with a quote over it. Under it, the only thing to click is the way back to the feed, worded to make you think twice ("Succumb to temptation", "Abandon the vigil", "Kneel to the algorithm"). It still goes through the prompt, and its tooltip says what it does.
 
-- The post, its way back, and the prompt it opens change at **local midnight** and stay the same all day. Refreshing never brings a new one, because a post that changed on every visit would be a feed of its own.
-- Quotes and paintings each go round in order, and the paintings shift one step each time the quotes start over, so in time every quote meets every painting. The same date gives the same post on every device.
+- The post, its way back, and the prompt it opens change together on the clock's tens (:00, :10, :20, …), even while the page stays open. Refreshing never brings a new one sooner, because a post that changed on every visit would be a feed of its own.
+- Each new post has a different painting and a different quote from the one before. Quotes and paintings each go round in order, so every quote shows before any comes back, and every painting but one. Each time the two lists line up again, the paintings skip one, so in time every quote meets every painting. The same moment gives the same post on every device.
 - Quotes come from the Stoics (Seneca, Marcus Aurelius, Epictetus) and the Bible (King James Version), about time, discipline, and putting things off. Each one is checked word for word against a public-domain translation.
 - Paintings are in the public domain, as is the one statue's photo (CC0). They're cropped to 4:5 at 960×1200, and ship with the app, so showing the post makes no network requests.
 - The list is in [`apps/extension/src/catalog/posts.ts`](../apps/extension/src/catalog/posts.ts), with each quote's translation and each painting's source.
@@ -50,9 +50,9 @@ Where a removed feed was, there's **one post a day**: a painting with a quote ov
 
 - Title: **"Why are you opening {name}?"** For example, "Why are you opening YouTube Shorts?"
 - **Go back** is the main action and has focus. It returns to the last page outside the surface, or to a safe page if there isn't one.
-- **Continue** unlocks after the wait (default 15 seconds, counted only while the page is visible). It opens the surface for a pass (default 5 minutes).
+- **Continue** unlocks after the wait (2 minutes at least and by default, counted only while the page is visible). It opens the surface for a pass (default 5 minutes).
 - When a pass runs out while the surface is open, the prompt returns: **"Your time with {name} is up."**
-- Giving in from the [daily post](#the-daily-post) opens a different prompt, which says rather than asks. Its title is a statement (**"You are meant for more, not for this."**), with a short message under it. Both change with the post, once a day. Its wait is a flat **2 minutes**, whatever the setting, and the pass is the usual one.
+- Giving in from the [post](#the-post) opens a different prompt, which says rather than asks. Its title is a statement (**"You are meant for more, not for this."**), with a short message under it. Both change with the post. The wait and the pass are the usual ones.
 - While the prompt is open, the page behind it can't be scrolled, typed into, or played.
 
 ## Delayed changes
@@ -77,7 +77,7 @@ Export and import move settings between devices without a sync server.
   "version": 1,
   "settings": {
     "surfaces": { "youtube.shorts": "friction", "facebook.feed": "remove" },
-    "waitSeconds": 15,
+    "waitSeconds": 120,
     "passMinutes": 5
   }
 }
@@ -85,4 +85,5 @@ Export and import move settings between devices without a sync server.
 
 - Surfaces missing from `surfaces` use their default.
 - Unknown surface IDs are kept, so a file from a platform with more surfaces round-trips without loss.
-- `waitSeconds` is one of 3, 5, 10, 15, or 30. `passMinutes` is one of 1, 3, 5, 10, 15, or 30. Invalid values are skipped on import.
+- `waitSeconds` is one of 120, 180, 300, or 600 (2, 3, 5, or 10 minutes). `passMinutes` is one of 1, 3, 5, 10, 15, or 30. Invalid values are skipped on import.
+- A saved wait under 2 minutes, from before that was the shortest, is raised to 2 minutes at once, and a pending change to such a wait is dropped.

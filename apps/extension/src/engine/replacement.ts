@@ -1,10 +1,10 @@
 /**
  * Panels shown where removed content used to be: search and shortcuts to the useful parts of the
- * site, or the daily post. Sites re-render often, so panels are re-attached whenever their anchor
- * changes.
+ * site, or the post. Sites re-render often, so panels are re-attached whenever their anchor
+ * changes, and a panel with the post is drawn again when the next post is up.
  */
 import { copy } from '@/catalog/copy';
-import { postFor } from '@/catalog/posts';
+import { postFor, postNumber } from '@/catalog/posts';
 import { surface } from '@/catalog/surfaces';
 import type { SurfaceId } from '@/catalog/surfaces';
 import type { Replacement } from '@/sites/types';
@@ -18,7 +18,10 @@ export interface ShownReplacement {
 }
 
 export function createReplacements(onShowAnyway: (id: SurfaceId) => void) {
-  const shown = new Map<SurfaceId, { replacement: Replacement; host: HTMLElement }>();
+  const shown = new Map<
+    SurfaceId,
+    { replacement: Replacement; host: HTMLElement; postNumber: number }
+  >();
   let frame = 0;
 
   const attachAll = () => {
@@ -37,17 +40,20 @@ export function createReplacements(onShowAnyway: (id: SurfaceId) => void) {
     frame ||= requestAnimationFrame(attachAll);
   });
 
-  const set = (list: ShownReplacement[]) => {
+  const set = (list: ShownReplacement[], now = new Date()) => {
+    const current = postNumber(now);
     for (const [id, entry] of shown) {
-      if (list.some((item) => item.surface === id && item.replacement === entry.replacement)) {
-        continue;
-      }
+      const kept = list.some(
+        (item) => item.surface === id && item.replacement === entry.replacement,
+      );
+      if (kept && (!entry.replacement.post || entry.postNumber === current)) continue;
       entry.host.remove();
       shown.delete(id);
     }
     for (const { surface: id, replacement } of list) {
       if (!shown.has(id)) {
-        shown.set(id, { replacement, host: renderPanel(id, replacement, onShowAnyway) });
+        const host = renderPanel(id, replacement, onShowAnyway, now);
+        shown.set(id, { replacement, host, postNumber: current });
       }
     }
     if (shown.size === 0) {
@@ -65,6 +71,7 @@ function renderPanel(
   id: SurfaceId,
   replacement: Replacement,
   onShowAnyway: (id: SurfaceId) => void,
+  now: Date,
 ): HTMLElement {
   const { post, search, shortcuts } = replacement;
   const { host, root } = shadowHost('panel', post ? css + postCss : css);
@@ -92,22 +99,22 @@ function renderPanel(
         ...shortcuts.map(({ label, href }) => h('a', { href }, label)),
       )
     : null;
-  const today = post ? postFor(new Date()) : null;
+  const current = post ? postFor(now) : null;
   const showAnyway = h(
     'button',
-    // With the post, the button gives in in the day's words, and its tooltip says what it does.
-    { class: 'show-anyway', type: 'button', title: today ? replacement.showAnyway : undefined },
-    today?.giveIn.label ?? replacement.showAnyway,
+    // With the post, the button gives in in the post's words, and its tooltip says what it does.
+    { class: 'show-anyway', type: 'button', title: current ? replacement.showAnyway : undefined },
+    current?.giveIn.label ?? replacement.showAnyway,
   );
   showAnyway.addEventListener('click', () => onShowAnyway(id));
 
   root.append(
-    today
+    current
       ? // The post takes the title's place, with the ways out kept quiet underneath it.
         h(
           'section',
           { class: 'panel with-post', 'aria-label': title },
-          renderPost(today),
+          renderPost(current),
           searchForm,
           h('div', { class: 'footer' }, links, showAnyway),
         )

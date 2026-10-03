@@ -196,7 +196,7 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
         key: 'waitSeconds',
         value: state.settings.waitSeconds,
         options: WAIT_SECONDS_OPTIONS,
-        format: (seconds) => `${seconds} seconds`,
+        format: (seconds) => `${seconds / 60} min`,
         onChange: (value) => change({ setting: 'waitSeconds', value }),
       }),
       selectRow({
