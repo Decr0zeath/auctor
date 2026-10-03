@@ -66,6 +66,14 @@ export const SURFACES = {
     modes: ['remove', 'off'],
     defaultMode: 'remove',
   },
+  'facebook.stories': {
+    site: 'facebook',
+    label: 'Stories',
+    name: 'Facebook Stories',
+    description: 'The stories row (My Day) on the home page, and the stories viewer',
+    modes: ['remove', 'friction', 'off'],
+    defaultMode: 'remove',
+  },
   'facebook.reels': {
     site: 'facebook',
     label: 'Reels',

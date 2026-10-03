@@ -113,6 +113,25 @@ describe('Facebook', () => {
     }
   });
 
+  it('removes the stories row on the home page', () => {
+    const tray = '[role="main"] [role="region"]:has(a[href*="/stories/"])';
+    expect(planPage(facebook, input('/')).hide).toContain(tray);
+    const friction = input('/', { 'facebook.stories': 'friction' });
+    expect(planPage(facebook, friction).hide).not.toContain(tray);
+  });
+
+  it('puts the stories viewer behind the prompt, but not making a story', () => {
+    for (const mode of ['remove', 'friction'] as const) {
+      for (const path of ['/stories/123/abc=/', '/stories/123/abc=/?view_single=true']) {
+        const plan = planPage(facebook, input(path, { 'facebook.stories': mode }));
+        expect(plan.gated, `${mode} ${path}`).toBe('facebook.stories');
+      }
+    }
+    expect(planPage(facebook, input('/stories/create/')).gated).toBeNull();
+    const off = input('/stories/123/abc=/', { 'facebook.stories': 'off' });
+    expect(planPage(facebook, off).gated).toBeNull();
+  });
+
   it('puts Reels and the old Video tab behind the prompt', () => {
     for (const path of ['/reel/123', '/reel/?s=tab', '/reels/', '/watch/', '/watch?ref=tab']) {
       expect(planPage(facebook, input(path)).gated, path).toBe('facebook.reels');
