@@ -9,7 +9,9 @@ export const copy = {
   passEndedTitle: (name: string) => `Your time with ${name} is up.`,
   passEndedQuestion: 'Do you still want to keep going?',
   goBack: 'Go back',
-  continueIn: (seconds: number) => `Continue in ${seconds}…`,
+  /** Seconds under a minute, minutes and seconds from there: "Continue in 15…", "Continue in 2:00…". */
+  continueIn: (seconds: number) =>
+    `Continue in ${seconds < 60 ? seconds : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`}…`,
   continueFor: (minutes: number) => `Continue for ${minutes} min`,
   promptFooter: 'A pause you set for yourself with Auctor.',
   removedTitle: (name: string) => `Auctor removed ${name}.`,

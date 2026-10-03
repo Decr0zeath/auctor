@@ -161,7 +161,13 @@ describe('Facebook', () => {
             <ul><li><a href="https://www.facebook.com/groups/123/">A group</a></li></ul>
           </div>
         </div></div>
-        <div role="main"></div>
+        <div role="main">
+          <div><div><div><div role="region" aria-label="Create a post"><div>
+            <h3>Create a post</h3>
+            <a role="link" aria-label="Your profile" href="/me/"></a>
+            <div role="button">What's on your mind?</div>
+          </div></div></div></div>
+        </div>
         <div role="complementary"><div>
           <div>
             <div><h3>Sponsored</h3></div>
@@ -193,6 +199,15 @@ describe('Facebook', () => {
 
     it('keeps the search bar when it is off', () => {
       expect(visible({ 'facebook.search': 'off' })).toEqual(['Search Facebook', 'Home']);
+    });
+
+    it('keeps the post composer when it is off', () => {
+      expect(visible({ 'facebook.composer': 'off' })).toEqual([
+        'Home',
+        'Create a post',
+        'Your profile',
+        "What's on your mind?",
+      ]);
     });
 
     it('keeps the sidebar, without the removed links, when it is off', () => {

@@ -86,6 +86,72 @@ input::placeholder {
   cursor: pointer;
 }
 
+/* With the daily post: as wide as the site's own posts, with no box or title, and the ways out
+   kept quiet under the post. */
+:host(.with-post) {
+  max-width: none;
+  margin: 16px auto 24px;
+  padding: 0;
+}
+
+.with-post {
+  container-type: inline-size;
+  padding: 0;
+  border: 0;
+}
+
+.with-post .search {
+  margin-top: 12px;
+}
+
+.with-post .footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px 16px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.with-post .shortcuts {
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.with-post .shortcuts a {
+  padding: 0;
+  background: none;
+  opacity: 0.75;
+}
+
+.with-post .shortcuts a:hover {
+  background: none;
+  text-decoration: underline;
+  opacity: 1;
+}
+
+/* The way back to the feed, set like the post's attribution: quiet, and a little solemn. It's
+   centered when it's alone, and pushed right when shortcuts share its row. */
+.with-post .show-anyway {
+  margin: 0;
+  padding-left: 0.2em;
+  font-family: 'Auctor Cinzel', Georgia, serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  opacity: 0.55;
+}
+
+.with-post .shortcuts ~ .show-anyway {
+  margin-left: auto;
+}
+
+.with-post .show-anyway:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
 :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;

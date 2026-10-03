@@ -60,9 +60,28 @@ h1 {
   text-wrap: balance;
 }
 
-.question {
+.message {
   margin: 8px 0 0;
   color: var(--muted);
+}
+
+/* Opened from the daily post: the title is set like the post's quote, and there's room for a
+   longer message. The post declared its fonts on the page already. */
+.post {
+  width: min(480px, 100%);
+}
+
+.post h1 {
+  font-family: 'Auctor Cormorant', Georgia, serif;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.post .message {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .actions {

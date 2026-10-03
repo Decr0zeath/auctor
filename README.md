@@ -19,9 +19,10 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 | License | GPL-3.0 ([why](#license)) |
 | Repo | One monorepo for both apps: `github.com/Decr0zeath/auctor`, private for now |
 | Logo | Hervé Bazin's **authority point** ([concept](#logo-the-authority-point)) |
-| The pause | A 15-second wait, then a 5-minute pass. Both are adjustable, and loosening either waits 24 hours. |
+| The pause | A 15-second wait, then a 5-minute pass. Both are adjustable, and loosening either waits 24 hours. Giving in from the daily post waits a flat **2 minutes**, which no setting changes. |
 | YouTube home feed | **Left on by default**, because it's where I pick background listening while working (lectures, talks, music). Removing it stays available as a setting. |
-| Facebook navigation | **Only Home by default.** The top bar's search bar and its Reels, Marketplace, Groups, and Gaming tabs are removed. So are the home page's left sidebar and right panel (ads, Contacts, Group chats). Each is its own setting, and the feed panel keeps a search box. |
+| Facebook navigation | **Only Home by default.** The top bar's search bar and its Reels, Marketplace, Groups, and Gaming tabs are removed. So are the home page's post composer, left sidebar, and right panel (ads, Contacts, Group chats). Each is its own setting. With the defaults, nothing is left to click under the top bar but the daily post's way back to the feed; to search, turn the search bar back on. |
+| The daily post | **The Facebook feed becomes one post a day:** a public-domain painting (knights, Rembrandt, Caravaggio) with a quote from the Stoics or the Bible (King James Version) about time, discipline, and putting things off. Under it, the only thing to click is a way back to the feed in guilt-tripping words ("Succumb to temptation", "Abandon the vigil"). It opens the pause, which then says rather than asks: a statement such as "You are meant for more, not for this.", a few lines worded by the [research](#wording), and a 2-minute wait. It all stays the same all day, because a post that changed on every refresh would be a feed of its own. YouTube's home feed gets it later. |
 
 ## Research
 
@@ -35,6 +36,23 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 | [Purohit et al., CHI 2023](https://dl.acm.org/doi/10.1145/3544548.3581187) | Removing Facebook's News Feed cut time on site by **64%**; limiting it to self-chosen sources cut it by **39%**. Some users feared missing out. | Removal is the strongest single intervention; a self-chosen feed eases the fear of missing out |
 | [Lyngs et al., CHI 2020](https://arxiv.org/abs/2001.04180) (58 students) | Goal reminders ("why are you visiting?") and removing the News Feed both helped. Reminders were **often annoying**; removal left some fearing missing out. | Prompt at entry points, not on home pages you pass through to reach search |
 | [Kovacs et al., CHI 2019](https://hci.stanford.edu/publications/2019/conservation/conservation-chi2019.pdf) (5,230 HabitLab users) | Time saved on targeted sites **mostly didn't shift** to other sites | Blocking YouTube and Facebook is a real saving |
+
+### Wording
+
+What the prompt says when you give in from the daily post. In Grüning et al. the option to back out did the most and the wait helped, so the words support those rather than carry the prompt alone.
+
+| Study | Finding | How the prompt uses it |
+|---|---|---|
+| [Peng et al., Frontiers in Psychology 2023](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2023.1201631/full) (meta-analysis, 26 studies, 7,512 people) | Guilt appeals persuade a little. **Explicit guilt persuades less**, appeals to wider obligations beat blaming a person, and **suggesting a way to make amends** makes them stronger. | The guilt stays implicit, and every message names something better to do |
+| [Tangney, Stuewig & Martinez, Psychological Science 2014](https://pmc.ncbi.nlm.nih.gov/articles/PMC4105017) (476 inmates, one year) | Guilt about what you did predicted **less** re-offending. Shame about who you are mostly fed **blaming others**. | It judges the scrolling, never the person: no "lazy" or "weak" |
+| [Bryan et al., PNAS 2011](https://pmc.ncbi.nlm.nih.gov/articles/PMC3150938) | Asking about **being a voter** rather than **voting** raised turnout | It speaks to who you are ("You are meant for more", "You bow to no algorithm") |
+| [Dolcos & Albarracín, European Journal of Social Psychology 2014](https://prod.lsa.umich.edu/psych/news-events/all-news/archived-news/2014/07/one-word-that-could-help-you-achieve-more.html) | Advice to yourself as **"you"** rather than "I" strengthened intentions and performance | Every message says "you" |
+| [Miller et al., Human Communication Research 2007](https://doi.org/10.1111/j.1468-2958.2007.00297.x) | **Controlling language** ("you must") provokes reactance; a closing line saying the choice is yours reduced it | No "must" or "should", and every message ends by leaving the choice with you. The related ["but you are free" effect](https://open.lnu.se/index.php/metapsychology/article/view/2640) replicates poorly, so this is a courtesy, not a lever. |
+| [Breines & Chen, PSPB 2012](https://pubmed.ncbi.nlm.nih.gov/22645164/) | **Self-compassion** after a failure raised the motivation to improve more than a boost to self-esteem did | It grants that the pull is human and that rest isn't weakness |
+| [Epton et al., Health Psychology 2015](https://research.manchester.ac.uk/en/publications/the-impact-of-self-affirmation-on-health-behavior-change-a-meta-a/) (meta-analysis, 144 tests) | Reflecting on your **values** before a hard message made people less defensive and more likely to change | It points to what you value: family, work, health, the person you're becoming |
+| [Terzimehić et al., DIS 2022](https://www.medien.ifi.lmu.de/pubdb/publications/pub/terzimehic2022dis/terzimehic2022dis.pdf) (28 people, two weeks) | At unlock, asking what you'll **do in the real world afterwards** cut absent-minded use; asking why you're using the phone only raised awareness | It names a real-world alternative: a walk, a call, a page of work |
+| [Cozzolino et al., PSPB 2004](https://selfdeterminationtheory.org/SDT/documents/2004_CozzolinoStaplesMeyersSamoceti_PSPB.pdf) | **Reflecting** on death made people less greedy, where fear of death made some greedier | "Your days are numbered" is what makes them precious, not a threat |
+| [Patrick & Hagtvedt, Journal of Consumer Research 2012](https://www.bauer.uh.edu/vpatrick/docs/dontversuscant.pdf) | Refusing with **"I don't"** rather than "I can't" helped people resist temptation | It speaks of choosing, not of being forbidden |
 
 ### Design principles
 
@@ -54,18 +72,19 @@ A **surface** is one brain-rot entry point in a site or app, with a stable ID sh
 | `youtube.home-feed` | Off | When set to Remove: hide the recommendation grid on `/`; keep search and link to Subscriptions. "Show anyway" goes through friction. | Overlay the Home tab with shortcuts to Search, Subscriptions, and Library |
 | `youtube.shorts` | Remove shelves, friction to enter | Hide Shorts shelves in home, search, and subscriptions. Open shared `/shorts/<id>` links as `/watch?v=<id>`: that one video, without the endless swipe. Friction on the Shorts tab. | Detect the Shorts player and show friction |
 | `youtube.recommendations` | Remove | Hide the "Up next" sidebar and end screens | Later |
-| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays, and the panel links to it. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.feed` | Remove | Hide the feed on `/`, below the post composer and stories, and keep navigation. In its place, the [daily post](docs/surfaces.md#the-daily-post). The Feeds page (`/?filter=…`: All, Favorites, Friends, Groups, Pages) only shows sources you follow, so it stays. | Overlay the feed with shortcuts to Groups, Marketplace, Notifications, and Messenger |
+| `facebook.composer` | Remove | Hide the "What's on your mind?" box on `/`. Posting still works from your profile. | Later |
 | `facebook.stories` | Remove the row, friction to enter | Hide the stories row (My Day) on `/`. Friction on the stories viewer (`/stories/*`), which opens from the row or a profile picture. Making your own story (`/stories/create/`) stays open. | Detect the stories viewer and show friction |
 | `facebook.reels` | Remove the links, friction to enter | Hide Reels in the top bar and the left sidebar. Friction on `/reel/*`, `/reels/*`, and the old Video tab (`/watch`), which Facebook now redirects to Reels. | Detect the Reels viewer |
 | `facebook.marketplace` | Remove | Hide Marketplace in the top bar and the left sidebar | Later |
 | `facebook.groups` | Remove | Hide Groups in the top bar and the left sidebar; shortcuts to single groups stay | Later |
 | `facebook.gaming` | Remove | Hide Gaming in the top bar, and Gaming Video and Play games in the left sidebar | Later |
-| `facebook.search` | Remove | Hide the search bar in the top bar; the feed panel has its own | Later |
+| `facebook.search` | Remove | Hide the search bar in the top bar | Later |
 | `facebook.sidebar` | Remove | Empty the left sidebar on `/`, keeping its width so the page stays centered | Later |
 | `facebook.sponsored` | Remove | Hide the ads in the right panel on `/` | Later |
 | `facebook.contacts` | Remove | Hide the Contacts and Group chats lists in the right panel on `/` | Later |
 
-- **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications. Removing a top bar tab or sidebar link only hides the link; the pages still open from search, links, and the feed panel's shortcuts. Removing Contacts hides the list, not Messenger.
+- **Always allowed:** YouTube search, subscriptions, playlists, and specific videos. Facebook messages, groups, Marketplace, profiles, events, and notifications. Removing a top bar tab or sidebar link only hides the link; the pages still open from search, links, and notifications. Removing Contacts hides the list, not Messenger.
 - **Facebook is the hard target on both platforms.** Its web HTML uses randomized class names, so we rely on URLs and ARIA roles. Its Android app exposes few stable view IDs, so we may have to match on-screen labels, which change with the phone's language.
 - **Android can't edit another app's screen,** so there "remove" means covering it with our own overlay of useful shortcuts.
 

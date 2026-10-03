@@ -24,8 +24,13 @@ export interface Replacement {
   /** Text color, for sites that set it with variables instead of letting it inherit. */
   color?: string;
   on?: UrlPattern;
+  /**
+   * Show the daily post (a quote over a painting) in place of the panel's title. Its button
+   * takes the post's wording for giving in, with `showAnyway` as its tooltip.
+   */
+  post?: boolean;
   search?: { action: string; param: string; placeholder: string };
-  shortcuts: Shortcut[];
+  shortcuts?: Shortcut[];
   /** Label for the button that reveals the content after the friction prompt. */
   showAnyway: string;
 }
