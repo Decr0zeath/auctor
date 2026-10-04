@@ -7,7 +7,7 @@
 
 <p align="center"><em>Be the author of your attention.</em></p>
 
-> **Status: early development.** The browser extension (phase 1) is being built in [`apps/extension`](apps/extension). This README records decisions as they're made.
+> **Status:** the browser extension (phase 1) in [`apps/extension`](apps/extension) is going to the Chrome Web Store, unlisted at first. Daily limits come in a later update. This README records decisions as they're made.
 
 Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while keeping the useful parts of the same sites and apps: search, subscriptions, messages, groups, specific videos.
 
@@ -22,7 +22,8 @@ Auctor removes "brain rot", the infinite, algorithmic, short-form feeds, while k
 | Audience | Me first, then published and shared |
 | Approach | **Remove** feeds you land on, add **friction** to feeds you choose to enter, offer optional **limits** ([research](#research)) |
 | License | GPL-3.0 ([why](#license)) |
-| Repo | One monorepo for both apps: `github.com/Decr0zeath/auctor`, private for now |
+| Repo | One monorepo for both apps: `github.com/Decr0zeath/auctor`, public since the extension went to the store, so its [privacy policy](PRIVACY.md) can be read and checked against the code |
+| Release | **Unlisted first** on the Chrome Web Store: it goes through review and updates itself, but only people with the link can find it. Public once it's ready. Daily limits come in a later update. |
 | Logo | Hervé Bazin's **authority point** ([concept](#logo-the-authority-point)) |
 | The pause | A **2-minute** wait, then a 5-minute pass. Both are adjustable, the wait from 2 to 10 minutes, and loosening either waits 24 hours. Giving in from the post waits just as long. |
 | YouTube home feed | **Left on by default**, because it's where I pick background listening while working (lectures, talks, music). Removing it stays available as a setting. |
@@ -167,8 +168,8 @@ See [choosealicense.com](https://choosealicense.com/licenses/gpl-3.0/). *A summa
 
 | Phase | Scope | Status |
 |---|---|---|
-| 0 | Repo setup: the files and conventions above, plus `docs/surfaces.md` | Workspace, license, CI, and `docs/surfaces.md` done. Community files, templates, and `PRIVACY.md` to do. |
-| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits | Removal, friction, and delayed changes built. Limits to do. |
+| 0 | Repo setup: the files and conventions above, plus `docs/surfaces.md` | Workspace, license, CI, `docs/surfaces.md`, and `PRIVACY.md` done. Community files and templates to do. |
+| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits | Removal, friction, and delayed changes built, and going to the Chrome Web Store unlisted ([listing](apps/extension/store/listing.md)). Daily limits to do, in a later update. |
 | 2 | Android app for YouTube and Facebook with the same surfaces and behavior (**the main target**) | |
 | 3 | More apps: Instagram, TikTok, X, Reddit | |
 
@@ -228,6 +229,5 @@ The space is crowded:
 
 ## Open questions
 
-- [ ] Final name check of "Auctor" on GitHub, the Chrome Web Store, Google Play, Firefox Add-ons, and USPTO/EUIPO (earlier checks were light web searches)
-- [ ] Draw the authority-point logo as an SVG
+- [ ] Final name check of "Auctor" on GitHub, the Chrome Web Store, Google Play, Firefox Add-ons, and USPTO/EUIPO (earlier checks were light web searches; no Chrome Web Store extension was named Auctor on 2026-10-04)
 - [ ] A weekly summary (times you turned back, time saved)?
