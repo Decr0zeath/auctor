@@ -83,7 +83,8 @@ test('shows a removed home feed only after the prompt', async ({ page, extension
 });
 
 test('hides Shorts shelves in search results', async ({ page }) => {
-  await page.goto(`${YOUTUBE}/results?search_query=minecraft+shorts`);
+  // Not "minecraft shorts": its first page can be all Shorts shelves, leaving no video to wait for.
+  await page.goto(`${YOUTUBE}/results?search_query=minecraft`);
   await expect(page.locator('ytd-video-renderer').first()).toBeVisible();
   const shelves = page.locator('grid-shelf-view-model:has(ytm-shorts-lockup-view-model)');
   await expect(shelves.first()).toBeAttached();
