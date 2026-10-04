@@ -81,7 +81,7 @@ export async function mountSettings(root: HTMLElement, { full }: { full: boolean
       h(
         'header',
         {},
-        h('h1', {}, 'Auctor'),
+        h('h1', {}, h('span', { class: 'mark', 'aria-hidden': 'true' }), 'Auctor'),
         h('p', { class: 'tagline' }, 'Be the author of your attention.'),
       ),
       tabList(),

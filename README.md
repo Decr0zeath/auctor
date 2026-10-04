@@ -1,6 +1,11 @@
-# Auctor
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="brand/logo-dark.svg">
+    <img src="brand/logo.svg" alt="Auctor" width="140">
+  </picture>
+</h1>
 
-*Be the author of your attention.*
+<p align="center"><em>Be the author of your attention.</em></p>
 
 > **Status: early development.** The browser extension (phase 1) is being built in [`apps/extension`](apps/extension). This README records decisions as they're made.
 
@@ -190,7 +195,15 @@ See [choosealicense.com](https://choosealicense.com/licenses/gpl-3.0/). *A summa
 
 In *Plumons l'oiseau* (1966), Hervé Bazin proposed six new punctuation marks, none of which caught on. His **point d'autorité** is an exclamation mark with a cap that sits over a sentence *"comme un parasol sur le sultan"* ("like a parasol over the sultan"), marking a statement made with authority, such as an order or a verdict (p. 142, reproduced in [Unicode proposal L2/11-232R](http://www.unicode.org/L2/L2011/11232r-sup-punct-proposal.pdf)).
 
-It fits because the app speaks with the authority of your calm, planning self over your impulsive, scrolling self, which is how the research says limits work. The cap also shelters you from the feed. The mark was proposed for Unicode in 2011 but apparently never encoded, so the logo has to be drawn as an SVG.
+It fits because the app speaks with the authority of your calm, planning self over your impulsive, scrolling self, which is how the research says limits work. The cap also shelters you from the feed. The mark was proposed for Unicode in 2011 but apparently never encoded, so it's drawn, in [`brand/`](brand):
+
+| File | What it is |
+|---|---|
+| `mark.svg` | The authority point alone. The settings screen shows it beside the name. |
+| `logo.svg`, `logo-dark.svg` | The mark over the name, for light and dark backgrounds. The name is set in Cinzel, the post's typeface for who said it. |
+| `icon.svg` | The app icon: the mark on an ink tile. The extension's icons in `apps/extension/public/` are rendered from it, with the mark drawn larger and a little bolder at small sizes so the stem stays visible. |
+
+The colors are the settings screen's text colors: `#1c1b1a` on light backgrounds and `#f2f0ec` on dark ones.
 
 ## Existing tools
 

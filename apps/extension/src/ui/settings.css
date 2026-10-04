@@ -25,6 +25,13 @@
   }
 }
 
+@font-face {
+  font-family: 'Auctor Cinzel';
+  src: url('/fonts/cinzel.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: block;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -61,10 +68,24 @@ header {
   gap: 8px;
 }
 
+/* The name is set as in the logo, after the mark. */
 h1 {
   margin: 0;
-  font-size: 17px;
-  font-weight: 700;
+  font-family: 'Auctor Cinzel', Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* The authority point, with its dot on the baseline like the punctuation it is. */
+.mark {
+  display: inline-block;
+  width: 0.83em;
+  height: 1.4em;
+  margin-right: 0.3em;
+  background: currentColor;
+  mask: url('../../../../brand/mark.svg') center / contain no-repeat;
 }
 
 .tagline {
