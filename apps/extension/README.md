@@ -60,3 +60,7 @@ To add a painting, crop it to 960×1200, darken it to sit with the others if nee
 ## Permissions
 
 Only `storage`. The content script runs only on the sites in `src/sites/`, and nothing leaves the browser. The post's paintings and fonts are web-accessible resources, limited to the sites that show the post, so those pages can load them from the extension.
+
+## Publishing
+
+[`store/`](store) holds the Chrome Web Store listing: [`listing.md`](store/listing.md) has the text for each field of the dashboard, with the screenshots and promo tile beside it. The [privacy policy](../../PRIVACY.md) is the one the listing links to, so update it with any change to what the extension reads or stores.
