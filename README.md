@@ -169,9 +169,34 @@ See [choosealicense.com](https://choosealicense.com/licenses/gpl-3.0/). *A summa
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Repo setup: the files and conventions above, plus `docs/surfaces.md` | Workspace, license, CI, `docs/surfaces.md`, and `PRIVACY.md` done. Community files and templates to do. |
-| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits | Removal, friction, and delayed changes built, and going to the Chrome Web Store unlisted ([listing](apps/extension/store/listing.md)). Daily limits to do, in a later update. |
+| 1 | Browser extension for YouTube and Facebook: removal, friction, optional limits | Removal, friction, and delayed changes built, and going to the Chrome Web Store unlisted ([listing](apps/extension/store/listing.md)). Daily limits come in [0.2.0](#extension-020). |
 | 2 | Android app for YouTube and Facebook with the same surfaces and behavior (**the main target**) | |
 | 3 | More apps: Instagram, TikTok, X, Reddit | |
+
+### Extension 0.2.0
+
+**Facebook: "Menu and notifications"**, one setting, Remove by default
+- [ ] Hide the Menu button (the 3×3 grid) in the top bar. Its pop-up links to Reels, Marketplace, Groups, and Gaming.
+- [ ] Notifications ignore clicks, in the bell's pop-up and on `/notifications`; the bell still opens the list. CSS only, so the keyboard still gets through.
+- [ ] Update the comment on `css` in `src/sites/types.ts`, which says it's only for what hiding leaves behind.
+
+**YouTube: a daily watch limit**
+- [ ] Count time only while a video plays and its tab is visible. A background tab or a minimized window doesn't count; picture-in-picture does, and so does a video on a second screen, since the browser can't tell where you're looking. Shorts count, and two tabs playing at once count once.
+- [ ] At the limit, videos are blocked until midnight, with Go back as the only button. A warning comes shortly before.
+- [ ] The setting: off, 1, 2, or 3 hours, off by default. Lowering it is instant. Raising it or turning it off waits 24 hours, unlike other settings that are off by default, so record the exception in the [design principles](#design-principles).
+- [ ] Define its rules in `catalog/`, so the Android app follows them.
+
+**Checks**
+- [ ] YouTube search pages that Shorts fill: do more results load, or does the page stay empty?
+- [ ] A "broken site" issue template, now that the store's support link points to issues.
+
+**Release**
+- [ ] Settings storage migration to version 3, and settings files exported from 0.1.0 still import.
+- [ ] `docs/surfaces.md` and the surface tables in this README.
+- [ ] `PRIVACY.md` and `store/listing.md`: the stored watch time, and recheck the data-usage answer.
+- [ ] Screenshots of the new settings screen and the limit screen.
+- [ ] Tests: unit tests for counting and the midnight reset, an end-to-end test with a very short limit, and a pass by hand on Facebook.
+- [ ] `version` 0.2.0, `pnpm zip`, upload, and tag `extension-v0.2.0`.
 
 ## Technical notes
 
